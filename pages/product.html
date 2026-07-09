@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Product details - NutriNuts Pakistan">
+  <title>Product – NutriNuts</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body id="product-page">
+  <header class="header">
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon">N</span>
+        NutriNuts
+      </a>
+      <nav class="nav">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="cart.html" class="cart-btn">
+          🛒<span class="cart-count">0</span>
+        </a>
+      </nav>
+      <button class="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="product-page">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="../index.html">Home</a> / <a href="shop.html">Shop</a> / <span id="product-category"></span>
+      </div>
+      <div class="product-detail">
+        <div class="product-detail-image">
+          <img id="product-img" src="" alt="">
+          <span id="product-img-fallback" style="display:none;font-size:8rem">🥜</span>
+        </div>
+        <div class="product-detail-info">
+          <div class="product-detail-category" id="product-category-label"></div>
+          <h1 id="product-name"></h1>
+          <div class="product-detail-price" id="product-price"></div>
+          <div class="product-detail-pack" id="product-pack"></div>
+          <p class="product-detail-desc" id="product-desc"></p>
+          <div class="quantity-control">
+            <button class="quantity-btn" id="qty-minus">−</button>
+            <input type="text" class="quantity-input" id="qty-input" value="1" readonly>
+            <button class="quantity-btn" id="qty-plus">+</button>
+          </div>
+          <button class="btn btn-secondary" id="add-to-cart-btn">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">NutriNuts</div>
+          <p>Pure. Fresh. Premium. Pakistan's trusted source for premium nuts, dry fruits, and healthy products.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Categories</h4>
+          <ul class="footer-links">
+            <li><a href="shop.html?category=Nuts">Nuts</a></li>
+            <li><a href="shop.html?category=Dry%20Fruits">Dry Fruits</a></li>
+            <li><a href="shop.html?category=Healthy%20Products">Healthy Products</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <div class="contact-item">📞 <span data-contact="phone">03XX-XXXXXXX</span></div>
+          <div class="contact-item">✉️ <span data-contact="email">info@nutrinuts.pk</span></div>
+          <div class="contact-item">📍 <span data-contact="address">Pakistan</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2024 NutriNuts. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/products.js"></script>
+  <script src="../assets/js/cart.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

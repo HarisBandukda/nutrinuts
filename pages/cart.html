@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your shopping cart - NutriNuts Pakistan">
+  <title>Cart – NutriNuts</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body id="cart-page">
+  <header class="header">
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon">N</span>
+        NutriNuts
+      </a>
+      <nav class="nav">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="cart.html" class="cart-btn">
+          🛒<span class="cart-count">0</span>
+        </a>
+      </nav>
+      <button class="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="cart-page">
+    <div class="container">
+      <h1>Shopping Cart</h1>
+
+      <div class="empty-cart" id="empty-cart" style="display:none">
+        <div class="empty-cart-icon">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added any products yet.</p>
+        <a href="shop.html" class="btn btn-secondary">Browse Products</a>
+      </div>
+
+      <div class="cart-layout" id="cart-summary">
+        <div id="cart-items-container"></div>
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">Rs. 0</span>
+          </div>
+          <div class="summary-row delivery">
+            <span>Delivery</span>
+            <span>To be confirmed</span>
+          </div>
+          <div class="summary-row total">
+            <span>Grand Total</span>
+            <span id="cart-grand-total">Rs. 0</span>
+          </div>
+          <p style="font-size:0.8rem;color:var(--color-text-light);margin-top:12px;line-height:1.5">
+            Delivery charges will be calculated based on your location and confirmed before dispatch.
+          </p>
+          <a href="checkout.html" class="btn btn-secondary">Proceed to Checkout</a>
+          <a href="shop.html" style="display:block;text-align:center;margin-top:12px;font-size:0.9rem;color:var(--color-text-light)">Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">NutriNuts</div>
+          <p>Pure. Fresh. Premium. Pakistan's trusted source for premium nuts, dry fruits, and healthy products.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Categories</h4>
+          <ul class="footer-links">
+            <li><a href="shop.html?category=Nuts">Nuts</a></li>
+            <li><a href="shop.html?category=Dry%20Fruits">Dry Fruits</a></li>
+            <li><a href="shop.html?category=Healthy%20Products">Healthy Products</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <div class="contact-item">📞 <span data-contact="phone">03XX-XXXXXXX</span></div>
+          <div class="contact-item">✉️ <span data-contact="email">info@nutrinuts.pk</span></div>
+          <div class="contact-item">📍 <span data-contact="address">Pakistan</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2024 NutriNuts. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/products.js"></script>
+  <script src="../assets/js/cart.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Checkout - Place your order at NutriNuts Pakistan">
+  <title>Checkout – NutriNuts</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body id="checkout-page">
+  <header class="header">
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon">N</span>
+        NutriNuts
+      </a>
+      <nav class="nav">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="cart.html" class="cart-btn">
+          🛒<span class="cart-count">0</span>
+        </a>
+      </nav>
+      <button class="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="checkout-page">
+    <div class="container">
+      <h1>Checkout</h1>
+
+      <div class="delivery-notice">
+        <strong>Delivery Notice:</strong> Delivery charges will be calculated based on your location and confirmed before dispatch.
+      </div>
+
+      <div class="checkout-layout">
+        <div>
+          <form class="checkout-form" id="checkout-form" novalidate>
+            <h3 style="font-family:var(--font-heading);color:var(--color-primary);margin-bottom:1.5rem">Customer Details</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="customer-name">Customer Name *</label>
+                <input type="text" id="customer-name" placeholder="Full name" required>
+                <div class="form-error"></div>
+              </div>
+              <div class="form-group">
+                <label for="customer-phone">Customer Phone *</label>
+                <input type="tel" id="customer-phone" placeholder="03XX-XXXXXXX" required>
+                <div class="form-error"></div>
+              </div>
+            </div>
+
+            <h3 style="font-family:var(--font-heading);color:var(--color-primary);margin:1.5rem 0">Receiver Details</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="receiver-name">Receiver Name *</label>
+                <input type="text" id="receiver-name" placeholder="Full name" required>
+                <div class="form-error"></div>
+              </div>
+              <div class="form-group">
+                <label for="receiver-phone">Receiver Phone *</label>
+                <input type="tel" id="receiver-phone" placeholder="03XX-XXXXXXX" required>
+                <div class="form-error"></div>
+              </div>
+            </div>
+
+            <h3 style="font-family:var(--font-heading);color:var(--color-primary);margin:1.5rem 0 1rem">Delivery Address</h3>
+            <div class="form-group">
+              <label for="delivery-address">Delivery Address *</label>
+              <textarea id="delivery-address" placeholder="Full address with landmarks" required></textarea>
+              <div class="form-error"></div>
+            </div>
+            <div class="form-group">
+              <label for="maps-link">Google Maps Link <span class="optional">(optional)</span></label>
+              <input type="url" id="maps-link" placeholder="https://maps.app.goo.gl/...">
+            </div>
+
+            <h3 style="font-family:var(--font-heading);color:var(--color-primary);margin:1.5rem 0 1rem">Payment Method</h3>
+            <div class="payment-methods">
+              <div class="payment-method" data-method="Cash on Delivery" onclick="selectPayment('Cash on Delivery')">
+                <input type="radio" name="payment" value="Cash on Delivery">
+                💵 Cash on Delivery
+              </div>
+              <div class="payment-method" data-method="Bank Transfer" onclick="selectPayment('Bank Transfer')">
+                <input type="radio" name="payment" value="Bank Transfer">
+                🏦 Bank Transfer
+              </div>
+              <div class="payment-method" data-method="EasyPaisa" onclick="selectPayment('EasyPaisa')">
+                <input type="radio" name="payment" value="EasyPaisa">
+                📱 EasyPaisa
+              </div>
+            </div>
+
+            <h3 style="font-family:var(--font-heading);color:var(--color-primary);margin:1.5rem 0 1rem">Special Instructions</h3>
+            <div class="form-group">
+              <textarea id="special-instructions" placeholder="Any special requests or notes..." rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+
+        <div>
+          <div class="checkout-summary">
+            <h3>Order Summary</h3>
+            <div id="checkout-items"></div>
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="checkout-subtotal">Rs. 0</span>
+            </div>
+            <div class="summary-row delivery">
+              <span>Delivery</span>
+              <span>To be confirmed</span>
+            </div>
+            <div class="summary-row total">
+              <span>Grand Total</span>
+              <span id="checkout-grand-total">Rs. 0</span>
+            </div>
+            <button class="btn btn-secondary" id="place-order-btn">Place Order</button>
+            <p style="font-size:0.8rem;color:var(--color-text-light);margin-top:12px;text-align:center">
+              By placing this order, you agree to our delivery policy. You will be redirected to WhatsApp to confirm your order.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal">
+      <div class="modal-icon">✅</div>
+      <h2>Order Placed!</h2>
+      <p>Your order has been recorded.</p>
+      <div class="order-id" id="modal-order-id">NN-000001</div>
+      <p style="font-size:0.9rem">Please send the WhatsApp message to confirm your order. We will contact you shortly to confirm delivery charges.</p>
+      <button class="btn btn-secondary" onclick="closeOrderModal(); window.location.href='shop.html'">Continue Shopping</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">NutriNuts</div>
+          <p>Pure. Fresh. Premium. Pakistan's trusted source for premium nuts, dry fruits, and healthy products.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Categories</h4>
+          <ul class="footer-links">
+            <li><a href="shop.html?category=Nuts">Nuts</a></li>
+            <li><a href="shop.html?category=Dry%20Fruits">Dry Fruits</a></li>
+            <li><a href="shop.html?category=Healthy%20Products">Healthy Products</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <div class="contact-item">📞 <span data-contact="phone">03XX-XXXXXXX</span></div>
+          <div class="contact-item">✉️ <span data-contact="email">info@nutrinuts.pk</span></div>
+          <div class="contact-item">📍 <span data-contact="address">Pakistan</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2024 NutriNuts. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/products.js"></script>
+  <script src="../assets/js/cart.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

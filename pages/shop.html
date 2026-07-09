@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Shop premium nuts, dry fruits, and healthy products at NutriNuts Pakistan.">
+  <title>Shop – NutriNuts</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body id="shop-page">
+  <header class="header">
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon">N</span>
+        NutriNuts
+      </a>
+      <nav class="nav">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link active">Shop</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="cart.html" class="cart-btn">
+          🛒<span class="cart-count">0</span>
+        </a>
+      </nav>
+      <button class="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <section class="shop-header">
+    <div class="container">
+      <h1>Our Products</h1>
+      <p>Premium nuts, dry fruits &amp; healthy products</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="shop-controls">
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Search products..." aria-label="Search products">
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn active" data-category="All">All</button>
+          <button class="filter-btn" data-category="Nuts">Nuts</button>
+          <button class="filter-btn" data-category="Dry Fruits">Dry Fruits</button>
+          <button class="filter-btn" data-category="Healthy Products">Healthy</button>
+        </div>
+        <select class="sort-select" id="sort-select" aria-label="Sort products">
+          <option value="default">Default</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="name">Name: A to Z</option>
+        </select>
+      </div>
+      <p style="color:var(--color-text-light);margin-bottom:1.5rem;font-size:0.9rem" id="result-count"></p>
+      <div class="products-grid" id="shop-products"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">NutriNuts</div>
+          <p>Pure. Fresh. Premium. Pakistan's trusted source for premium nuts, dry fruits, and healthy products.</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="shop.html">Shop</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Categories</h4>
+          <ul class="footer-links">
+            <li><a href="shop.html?category=Nuts">Nuts</a></li>
+            <li><a href="shop.html?category=Dry%20Fruits">Dry Fruits</a></li>
+            <li><a href="shop.html?category=Healthy%20Products">Healthy Products</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <div class="contact-item">📞 <span data-contact="phone">03XX-XXXXXXX</span></div>
+          <div class="contact-item">✉️ <span data-contact="email">info@nutrinuts.pk</span></div>
+          <div class="contact-item">📍 <span data-contact="address">Pakistan</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2024 NutriNuts. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/products.js"></script>
+  <script src="../assets/js/cart.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
