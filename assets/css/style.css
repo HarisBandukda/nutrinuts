@@ -208,33 +208,36 @@ input, textarea, select {
 /* Hero */
 .hero {
   margin-top: var(--header-height);
-  min-height: 600px;
+  min-height: 550px;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: var(--color-white);
   position: relative;
   overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.hero::before {
-  content: '';
+.hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="90" font-size="90" opacity="0.04">🥜</text></svg>') repeat;
-  background-size: 120px;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
 }
 
 .hero .container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .hero-content h1 {
@@ -246,7 +249,7 @@ input, textarea, select {
 
 .hero-content p {
   font-size: 1.15rem;
-  opacity: 0.9;
+  opacity: 0.95;
   margin-bottom: 2rem;
   line-height: 1.7;
 }
@@ -260,19 +263,6 @@ input, textarea, select {
   margin-bottom: 1.5rem;
   letter-spacing: 1px;
   text-transform: uppercase;
-}
-
-.hero-image {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.hero-banner-img {
-  width: 100%;
-  max-width: 500px;
-  border-radius: var(--radius-lg);
-  display: block;
 }
 
 /* Buttons */
