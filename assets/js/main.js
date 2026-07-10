@@ -438,6 +438,40 @@ async function submitContactForm(formData) {
   }
 }
 
+/* ───────── Location Detection ───────── */
+function detectLocation() {
+  const statusEl = document.getElementById('location-status');
+  const inputEl = document.getElementById('maps-link');
+  if (!statusEl || !inputEl) return;
+
+  if (!navigator.geolocation) {
+    statusEl.textContent = 'Location detection not supported in your browser.';
+    return;
+  }
+
+  statusEl.textContent = 'Detecting location...';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      inputEl.value = mapsUrl;
+      statusEl.textContent = `✓ Location detected! (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+    },
+    (err) => {
+      switch (err.code) {
+        case err.PERMISSION_DENIED:
+          statusEl.textContent = 'Location access denied. Please paste a Google Maps link manually.';
+          break;
+        case err.POSITION_UNAVAILABLE:
+          statusEl.textContent = 'Location unavailable. Please paste a Google Maps link manually.';
+          break;
+        default:
+          statusEl.textContent = 'Could not detect location. Please paste a Google Maps link manually.';
+      }
+    }
+  );
+}
+
 /* ───────── WhatsApp ───────── */
 function openWhatsApp(data) {
   const phone = typeof CONFIG !== 'undefined' ? CONFIG.whatsapp : '92300XXXXXXX';
@@ -502,6 +536,10 @@ function initPageSpecific() {
     const placeOrderBtn = document.getElementById('place-order-btn');
     if (placeOrderBtn) {
       placeOrderBtn.addEventListener('click', placeOrder);
+    }
+    const locateBtn = document.getElementById('locate-btn');
+    if (locateBtn) {
+      locateBtn.addEventListener('click', detectLocation);
     }
   }
 }
