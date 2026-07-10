@@ -93,10 +93,9 @@
     font-size: 2rem;
   }
 
-  .hero-image-placeholder {
-    width: 220px;
-    height: 220px;
-    font-size: 4.5rem;
+  .hero-banner-img {
+    width: 80%;
+    margin: 0 auto;
   }
 
   .section {
