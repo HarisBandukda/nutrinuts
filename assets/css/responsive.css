@@ -5,11 +5,19 @@
   }
 
   .hero {
-    min-height: 450px;
+    min-height: 70vh;
   }
 
-  .hero-content h1 {
-    font-size: 2.5rem;
+  .hero-container {
+    padding: 50px 32px;
+  }
+
+  .hero-text {
+    max-width: 380px;
+  }
+
+  .hero-heading {
+    font-size: 2.6rem;
   }
 
   .footer-grid {
@@ -96,11 +104,45 @@
 
   .hero {
     min-height: auto;
-    padding: 60px 0;
+    padding: 0;
+    background-position: 62% center;
   }
 
-  .hero-content h1 {
-    font-size: 2rem;
+  .hero::before {
+    width: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 251, 245, 0.6) 0%,
+      rgba(255, 251, 245, 0.4) 60%,
+      transparent 100%
+    );
+  }
+
+  .hero-container {
+    padding: 50px 24px 180px;
+    align-items: flex-start;
+  }
+
+  .hero-text {
+    max-width: 100%;
+    background: rgba(255, 251, 245, 0.88);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 20px rgba(59, 16, 7, 0.06);
+  }
+
+  .hero-heading {
+    font-size: 2.2rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .hero-subheading {
+    font-size: 1.1rem;
   }
 
 
@@ -205,12 +247,29 @@
     font-size: 3rem;
   }
 
-  .hero-content h1 {
-    font-size: 1.6rem;
+  .hero {
+    background-position: 65% center;
   }
 
-  .hero-content p {
-    font-size: 1rem;
+  .hero-container {
+    padding: 36px 16px 160px;
+  }
+
+  .hero-text {
+    padding: 22px 18px;
+  }
+
+  .hero-heading {
+    font-size: 1.8rem;
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+  }
+
+  .hero-cta {
+    padding: 14px 32px;
+    font-size: 0.95rem;
   }
 
   .btn {

@@ -214,68 +214,132 @@ input, textarea, select {
   transition: 0.3s;
 }
 
-/* Hero */
+/* ───────── Hero ───────── */
 .hero {
   margin-top: var(--header-height);
-  min-height: 550px;
+  min-height: 85vh;
   display: flex;
   align-items: center;
-  color: var(--color-white);
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #FFF8F0 0%, var(--color-secondary) 100%);
+  background-image: url('../images/banner%20revised1.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.hero-overlay {
+/* Subtle gradient on the far left to guarantee text readability
+   at any viewport width while preserving the banner's natural white space */
+.hero::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 16, 7, 0.55) 0%, rgba(54, 31, 0, 0.7) 100%);
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 251, 245, 0.45) 0%,
+    rgba(255, 251, 245, 0.15) 50%,
+    transparent 100%
+  );
   z-index: 1;
+  pointer-events: none;
 }
 
-.hero .container {
+.hero-container {
   position: relative;
   z-index: 2;
-  text-align: center;
-}
-
-.hero-content {
-  max-width: 700px;
+  width: 100%;
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 60px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.hero-content h1 {
-  font-family: var(--font-heading);
-  font-size: 3rem;
-  line-height: 1.2;
-  margin-bottom: 1.2rem;
-  color: var(--color-white);
+/* ── Hero Text ── */
+.hero-text {
+  max-width: 440px;
+  animation: heroFadeIn 0.7s ease-out;
 }
 
-.hero-content p {
-  font-size: 1.15rem;
-  opacity: 0.95;
-  margin-bottom: 2rem;
-  line-height: 1.7;
-  color: var(--color-white);
-}
-
-.hero-badge {
+.hero-subheading {
   display: inline-block;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+  animation: fadeUp 0.5s ease-out 0.1s both;
+}
+
+.hero-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 3.5rem;
+  line-height: 1.15;
+  color: var(--color-primary);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.5px;
+  animation: fadeUp 0.5s ease-out 0.2s both;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--color-text-light);
+  margin-bottom: 2rem;
+  animation: fadeUp 0.5s ease-out 0.35s both;
+}
+
+/* ── Hero CTA ── */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 40px;
   background: var(--color-primary);
   color: var(--color-white);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  margin-bottom: 1.5rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 4px 16px rgba(59, 16, 7, 0.2);
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+  animation: fadeUp 0.5s ease-out 0.45s both;
+}
+
+.hero-cta:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 28px rgba(64, 135, 67, 0.35);
+  transform: translateY(-3px);
+}
+
+.hero-cta:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* ── Fade-up Keyframes ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Buttons */
