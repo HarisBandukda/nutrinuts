@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Product details - NutriNuts Pakistan">
   <title>Product – NutriNuts</title>
+  <meta name="theme-color" content="#3B1007">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥜</text></svg>">
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://www.clarity.ms">
+  <link rel="preconnect" href="https://www.google-analytics.com">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/responsive.css">
 
@@ -28,6 +34,7 @@
   </script>
 </head>
 <body id="product-page">
+  <a href="#main-content" class="skip-link">Skip to content</a>
   <header class="header">
     <div class="container">
       <a href="../index.html" class="logo">
@@ -42,13 +49,13 @@
       <a href="cart.html" class="cart-btn" id="header-cart">
         🛒<span class="cart-count">0</span>
       </a>
-      <button class="hamburger" aria-label="Toggle menu">
+      <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <section class="product-page">
+  <section class="product-page" id="main-content">
     <div class="container">
       <div class="breadcrumb">
         <a href="../index.html">Home</a> / <a href="shop.html">Shop</a> / <span id="product-category"></span>
@@ -70,7 +77,24 @@
             <button class="quantity-btn" id="qty-plus">+</button>
           </div>
           <button class="btn btn-secondary" id="add-to-cart-btn">Add to Cart</button>
+
+          <!-- Product Benefits -->
+          <div class="product-benefits">
+            <h3>Why You'll Love It</h3>
+            <ul class="benefits-list">
+              <li>Premium quality, carefully sourced</li>
+              <li>Freshly packed for maximum flavour</li>
+              <li>Rich in naturally occurring nutrients</li>
+              <li>Delivered fresh to your doorstep</li>
+            </ul>
+          </div>
         </div>
+      </div>
+
+      <!-- Related Products -->
+      <div class="related-products">
+        <h2>You May Also Like</h2>
+        <div class="products-grid" id="related-products-grid"></div>
       </div>
     </div>
   </section>
@@ -112,6 +136,14 @@
     </div>
   </footer>
 
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/923096887474" class="wa-float" aria-label="Chat on WhatsApp" target="_blank" rel="noopener" title="Chat on WhatsApp">💬</a>
+  <!-- Back to Top -->
+  <button class="back-to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/products.js"></script>
   <script src="../assets/js/cart.js"></script>

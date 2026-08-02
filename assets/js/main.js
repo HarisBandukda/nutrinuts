@@ -22,13 +22,24 @@ function initNavigation() {
   const nav = document.querySelector('.nav');
   if (hamburger && nav) {
     hamburger.addEventListener('click', () => {
+      const isOpen = nav.classList.toggle('open');
       hamburger.classList.toggle('active');
-      nav.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+    // Close nav on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('open')) {
+        nav.classList.remove('open');
+        hamburger.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.focus();
+      }
     });
     document.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => {
         hamburger.classList.remove('active');
         nav.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
       });
     });
   }
@@ -81,8 +92,11 @@ function renderProductCards(products, containerId = 'products-container') {
     <div class="product-card">
       <a href="${pagePath('product.html')}?id=${p.id}">
         <div class="product-image">
-          <img src="${imgPath(p.image)}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy">
+          <img src="${imgPath(p.image)}" alt="${p.name}" width="300" height="300" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy">
           <span style="display:none;font-size:4rem">🥜</span>
+          <div class="quick-add-overlay">
+            <button class="btn btn-secondary btn-sm" onclick="event.preventDefault();event.stopPropagation();addToCart(${p.id})">Quick Add</button>
+          </div>
         </div>
       </a>
       <div class="product-info">
@@ -237,7 +251,7 @@ function renderCartPage() {
           <button class="quantity-btn" onclick="updateQuantity(${item.productId}, ${item.quantity + 1})">+</button>
         </div>
         <div class="cart-item-total">Rs. ${(item.product.price * item.quantity).toLocaleString()}</div>
-        <button class="remove-item" onclick="removeFromCart(${item.productId})">Remove</button>
+        <button class="remove-item" onclick="confirmRemoveFromCart(${item.productId})">Remove</button>
       </div>
     </div>
   `).join('');
@@ -543,3 +557,379 @@ function initPageSpecific() {
     }
   }
 }
+
+/* ═══════════════════════════════════════════
+   UI/UX Pro Max Additions — Phase 2: P1 Features
+   ═══════════════════════════════════════════ */
+
+/* ── Back to Top ── */
+function initBackToTop() {
+  const btn = document.querySelector('.back-to-top');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 500);
+  });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+/* ── Header Scroll Shadow ── */
+function initHeaderScroll() {
+  const header = document.querySelector('.header');
+  if (!header) return;
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 10);
+  });
+}
+
+/* ── Cart Remove Confirmation ── */
+function confirmRemoveFromCart(productId) {
+  const btn = event.target;
+  if (btn.classList.contains('confirming')) {
+    removeFromCart(productId);
+    renderCartPage();
+    showToast('Item removed from cart');
+    return;
+  }
+  btn.classList.add('confirming');
+  btn.textContent = 'Click again to remove';
+  setTimeout(() => {
+    btn.classList.remove('confirming');
+    btn.textContent = 'Remove';
+  }, 3000);
+}
+
+/* ── Enhanced Toast (with icon + progress bar) ── */
+const _originalShowToast = showToast;
+showToast = function(message, isError = false) {
+  let toast = document.querySelector('.toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  const icon = isError ? '⚠️' : '✅';
+  toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span><div class="toast-progress"></div>`;
+  toast.className = 'toast' + (isError ? ' error' : '');
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 3000);
+};
+
+/* ── Cart Bounce Animation ── */
+function triggerCartBounce() {
+  const cartBtn = document.getElementById('header-cart');
+  if (!cartBtn) return;
+  cartBtn.classList.remove('cart-bounce');
+  void cartBtn.offsetWidth;
+  cartBtn.classList.add('cart-bounce');
+}
+
+/* ── Override addToCart to trigger bounce ── */
+const _originalAddToCart = addToCart;
+addToCart = function(productId, quantity = 1) {
+  _originalAddToCart(productId, quantity);
+  triggerCartBounce();
+  updateCartCount();
+};
+
+/* ── Scroll Reveal (Intersection Observer) ── */
+function initScrollReveal() {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+
+/* ── GSAP ScrollTrigger Animations ── */
+function initGSAPAnimations() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* Hero parallax (homepage only) */
+  const hero = document.querySelector('.hero');
+  if (hero) {
+    gsap.to('.hero', {
+      backgroundPositionY: '40%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 0.5
+      }
+    });
+  }
+
+  /* Section fade-up reveals */
+  gsap.utils.toArray('.section').forEach(section => {
+    gsap.from(section, {
+      y: 40,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: section,
+        start: 'top 85%',
+        once: true
+      }
+    });
+  });
+
+  /* Staggered product card reveals */
+  gsap.utils.toArray('.products-grid .product-card').forEach((card, i) => {
+    gsap.from(card, {
+      y: 30,
+      opacity: 0,
+      duration: 0.5,
+      delay: i * 0.08,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: card.closest('.products-grid'),
+        start: 'top 85%',
+        once: true
+      }
+    });
+  });
+
+  /* Category cards reveal */
+  gsap.utils.toArray('.category-card').forEach((card, i) => {
+    gsap.from(card, {
+      y: 30,
+      opacity: 0,
+      duration: 0.5,
+      delay: i * 0.1,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: card.closest('.categories-grid'),
+        start: 'top 85%',
+        once: true
+      }
+    });
+  });
+
+  /* Review cards reveal */
+  gsap.utils.toArray('.review-card').forEach((card, i) => {
+    gsap.from(card, {
+      y: 30,
+      opacity: 0,
+      duration: 0.5,
+      delay: i * 0.12,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: card.closest('.reviews-grid'),
+        start: 'top 85%',
+        once: true
+      }
+    });
+  });
+
+  /* USP strip items */
+  gsap.utils.toArray('.usp-item').forEach((item, i) => {
+    gsap.from(item, {
+      y: 20,
+      opacity: 0,
+      duration: 0.5,
+      delay: i * 0.15,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: item.closest('.usp-strip'),
+        start: 'top 85%',
+        once: true
+      }
+    });
+  });
+
+  /* CTA section scale-in */
+  const cta = document.querySelector('.cta-section');
+  if (cta) {
+    gsap.from(cta, {
+      scale: 0.97,
+      opacity: 0.6,
+      duration: 0.8,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: cta,
+        start: 'top 90%',
+        once: true
+      }
+    });
+  }
+
+  /* Value cards reveal (about page) */
+  gsap.utils.toArray('.value-card').forEach((card, i) => {
+    gsap.from(card, {
+      y: 30,
+      opacity: 0,
+      duration: 0.5,
+      delay: i * 0.12,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: card.closest('.values-grid'),
+        start: 'top 85%',
+        once: true
+      }
+    });
+  });
+
+  /* Product detail page image reveal */
+  const detailImg = document.querySelector('.product-detail-image');
+  if (detailImg) {
+    gsap.from(detailImg, {
+      x: -30,
+      opacity: 0,
+      duration: 0.7,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.product-detail',
+        start: 'top 80%',
+        once: true
+      }
+    });
+    gsap.from('.product-detail-info', {
+      x: 30,
+      opacity: 0,
+      duration: 0.7,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.product-detail',
+        start: 'top 80%',
+        once: true
+      }
+    });
+  }
+}
+
+/* ── Skeleton Loading ── */
+function showSkeletons(containerId, count = 4) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = Array(count).fill(
+    '<div class="skeleton skeleton-card"></div>'
+  ).join('');
+}
+
+/* ── Related Products ── */
+function renderRelatedProducts(productId) {
+  const container = document.getElementById('related-products-grid');
+  if (!container) return;
+  const current = getProductById(productId);
+  if (!current) return;
+  const related = getProductsByCategory(current.category)
+    .filter(p => p.id !== current.id)
+    .slice(0, 4);
+  if (!related.length) {
+    container.closest('.related-products').style.display = 'none';
+    return;
+  }
+  renderProductCards(related, 'related-products-grid');
+}
+
+/* ── Quick View Modal ── */
+function openQuickView(productId) {
+  const product = getProductById(productId);
+  if (!product) return;
+
+  let modal = document.getElementById('quick-view-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'quick-view-modal';
+    modal.innerHTML = `
+      <div class="modal quick-view-modal">
+        <button class="modal-close" onclick="closeQuickView()" aria-label="Close">×</button>
+        <div class="quick-view-content">
+          <div class="quick-view-image">
+            <img src="" alt="" id="qv-img">
+            <span id="qv-img-fallback" style="display:none;font-size:8rem">🥜</span>
+          </div>
+          <div class="quick-view-details">
+            <div class="product-detail-category" id="qv-category"></div>
+            <h2 id="qv-name"></h2>
+            <div class="product-detail-price" id="qv-price"></div>
+            <div class="product-detail-pack" id="qv-pack"></div>
+            <button class="btn btn-secondary btn-sm" id="qv-add-btn">Add to Cart</button>
+            <a href="#" class="btn btn-outline btn-sm" id="qv-view-link" style="margin-top:8px">View Full Details →</a>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById('qv-img').src = imgPath(product.image);
+  document.getElementById('qv-img').alt = product.name;
+  document.getElementById('qv-img').onerror = function() {
+    this.style.display = 'none';
+    document.getElementById('qv-img-fallback').style.display = 'flex';
+  };
+  document.getElementById('qv-img').onload = function() {
+    document.getElementById('qv-img-fallback').style.display = 'none';
+  };
+  document.getElementById('qv-category').textContent = product.category;
+  document.getElementById('qv-name').textContent = product.name;
+  document.getElementById('qv-price').textContent = `Rs. ${product.price.toLocaleString()}`;
+  document.getElementById('qv-pack').textContent = `${product.packSize}${product.unit !== 'Grams' ? ' ' + product.unit : ''}`;
+  document.getElementById('qv-add-btn').onclick = () => {
+    addToCart(product.id);
+    closeQuickView();
+  };
+  document.getElementById('qv-view-link').href = pagePath('product.html') + '?id=' + product.id;
+
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  /* Trap focus */
+  modal.querySelector('.modal-close').focus();
+}
+
+function closeQuickView() {
+  const modal = document.getElementById('quick-view-modal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/* ── Update initPageSpecific for Phase 3 ── */
+const _originalInitPageSpecific = initPageSpecific;
+initPageSpecific = function() {
+  _originalInitPageSpecific();
+
+  /* Product page: related products + benefits */
+  if (document.body.id === 'product-page') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    if (productId && getProductById(productId)) {
+      setTimeout(() => renderRelatedProducts(productId), 100);
+    }
+  }
+
+  /* Homepage: skeleton then load */
+  if (document.body.id === 'home-page') {
+    const featuredGrid = document.getElementById('featured-products');
+    if (featuredGrid && !featuredGrid.children.length) {
+      showSkeletons('featured-products', 4);
+    }
+  }
+};
+
+/* ── Init UX Enhancements ── */
+function initUXEnhancements() {
+  initBackToTop();
+  initHeaderScroll();
+  initScrollReveal();
+
+  /* GSAP animations after a short delay to ensure DOM ready */
+  setTimeout(initGSAPAnimations, 300);
+}
+
+/* Update DOMContentLoaded to include UX enhancements */
+document.addEventListener('DOMContentLoaded', () => {
+  initUXEnhancements();
+});

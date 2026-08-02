@@ -289,4 +289,80 @@
   .checkout-summary {
     padding: 20px;
   }
+
+  .wa-float {
+    width: 52px;
+    height: 52px;
+    bottom: 16px;
+    right: 16px;
+    font-size: 1.5rem;
+  }
+
+  .back-to-top {
+    bottom: 80px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .usp-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .usp-item p {
+    max-width: 100%;
+  }
+
+  .progress-steps {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .step-line {
+    width: 30px;
+    margin: 0 6px 22px;
+  }
+}
+
+/* ── UX Enhancements Tablet ── */
+@media (max-width: 1024px) {
+  .usp-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .usp-item h4 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .usp-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .step-line {
+    width: 30px;
+    margin: 0 4px 22px;
+  }
+
+  .quick-view-content {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-view-image {
+    min-height: 250px;
+  }
+
+  .quick-view-details {
+    padding: 20px;
+  }
+
+  .related-products {
+    margin-top: 40px;
+    padding-top: 30px;
+  }
 }

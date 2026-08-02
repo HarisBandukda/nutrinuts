@@ -1,0 +1,17 @@
+{
+  "name": "NutriNuts — Pure. Fresh. Premium.",
+  "short_name": "NutriNuts",
+  "description": "Premium quality nuts, dry fruits, and healthy products in Pakistan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFBF5",
+  "theme_color": "#3B1007",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/images/logo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

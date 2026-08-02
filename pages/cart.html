@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Your shopping cart - NutriNuts Pakistan">
   <title>Cart – NutriNuts</title>
+  <meta name="theme-color" content="#3B1007">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥜</text></svg>">
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://www.clarity.ms">
+  <link rel="preconnect" href="https://www.google-analytics.com">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/responsive.css">
 
@@ -28,6 +34,7 @@
   </script>
 </head>
 <body id="cart-page">
+  <a href="#main-content" class="skip-link">Skip to content</a>
   <header class="header">
     <div class="container">
       <a href="../index.html" class="logo">
@@ -42,13 +49,13 @@
       <a href="cart.html" class="cart-btn" id="header-cart">
         🛒<span class="cart-count">0</span>
       </a>
-      <button class="hamburger" aria-label="Toggle menu">
+      <button class="hamburger" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <section class="cart-page">
+  <section class="cart-page" id="main-content">
     <div class="container">
       <h1>Shopping Cart</h1>
 
@@ -122,6 +129,14 @@
     </div>
   </footer>
 
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/923096887474" class="wa-float" aria-label="Chat on WhatsApp" target="_blank" rel="noopener" title="Chat on WhatsApp">💬</a>
+  <!-- Back to Top -->
+  <button class="back-to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="../assets/js/config.js"></script>
   <script src="../assets/js/products.js"></script>
   <script src="../assets/js/cart.js"></script>
