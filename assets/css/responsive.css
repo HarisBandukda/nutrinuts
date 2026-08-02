@@ -103,46 +103,55 @@
   }
 
   .hero {
-    min-height: auto;
+    min-height: 75vh;
     padding: 0;
-    background-position: 62% center;
+    background-position: center center;
+    display: flex;
+    align-items: flex-end;
   }
 
+  /* Refined gradient: stronger warm tint at the bottom where text sits,
+     fading up naturally to reveal the banner */
   .hero::before {
     width: 100%;
     background: linear-gradient(
-      to bottom,
-      rgba(255, 251, 245, 0.6) 0%,
-      rgba(255, 251, 245, 0.4) 60%,
+      to top,
+      rgba(255, 251, 245, 0.92) 0%,
+      rgba(255, 251, 245, 0.55) 35%,
+      rgba(255, 251, 245, 0.12) 70%,
       transparent 100%
     );
   }
 
   .hero-container {
-    padding: 50px 24px 180px;
-    align-items: flex-start;
+    padding: 0 24px 40px;
+    align-items: flex-end;
   }
 
+  /* Clean text — no blur box, just natural readability from the gradient */
   .hero-text {
     max-width: 100%;
-    background: rgba(255, 251, 245, 0.88);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    padding: 28px 24px;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 2px 20px rgba(59, 16, 7, 0.06);
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0 0 8px;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .hero-heading {
-    font-size: 2.2rem;
+    font-size: 2rem;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(255, 251, 245, 0.3);
   }
 
   .hero-description {
     font-size: 1rem;
+    line-height: 1.6;
   }
 
   .hero-subheading {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
 
@@ -248,28 +257,40 @@
   }
 
   .hero {
-    background-position: 65% center;
+    min-height: 70vh;
+    background-position: center center;
   }
 
   .hero-container {
-    padding: 36px 16px 160px;
+    padding: 0 16px 32px;
   }
 
   .hero-text {
-    padding: 22px 18px;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0 0 4px;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .hero-heading {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
+    line-height: 1.2;
   }
 
   .hero-description {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .hero-subheading {
+    font-size: 0.9rem;
   }
 
   .hero-cta {
-    padding: 14px 32px;
-    font-size: 0.95rem;
+    padding: 13px 30px;
+    font-size: 0.9rem;
   }
 
   .btn {
