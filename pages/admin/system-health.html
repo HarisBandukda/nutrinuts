@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Health — NutriNuts Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <style>
+    /* ── Brand Variables ── */
+    :root {
+      --nn-brown: #3B1007;
+      --nn-cream: #F5C584;
+      --nn-green: #408743;
+      --nn-bg: #FFFBF5;
+      --nn-text: #2C2C2C;
+      --nn-border: #e0d5c5;
+      --nn-red: #c0392b;
+      --nn-red-bg: #fef5f4;
+      --nn-green-bg: #f4faf3;
+      --nn-amber: #d68910;
+      --nn-amber-bg: #fef9f2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--nn-bg);
+      color: var(--nn-text);
+      min-height: 100vh;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      background: var(--nn-brown);
+      color: #fff;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .topbar .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar .logo-icon { font-size: 22px; }
+
+    .topbar h1 {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .topbar .meta {
+      font-size: 12px;
+      opacity: 0.75;
+      text-align: right;
+    }
+
+    .topbar .meta span {
+      display: block;
+    }
+
+    /* ── Main Container ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    /* ── Control Bar ── */
+    .control-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--nn-brown);
+      color: #fff;
+      border-color: var(--nn-brown);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #4d1a0d;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--nn-brown);
+      border-color: var(--nn-brown);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: #fef9f2;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--nn-text);
+      border-color: var(--nn-border);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: #faf7f2;
+    }
+
+    .btn-danger-outline {
+      background: #fff;
+      color: var(--nn-red);
+      border-color: #e0c8c5;
+    }
+    .btn-danger-outline:hover:not(:disabled) {
+      background: var(--nn-red-bg);
+      border-color: var(--nn-red);
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    .spinner-dark {
+      border-color: rgba(59,16,7,0.15);
+      border-top-color: var(--nn-brown);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Last Checked ── */
+    .last-checked {
+      font-size: 12px;
+      color: #8a7d6e;
+      margin-bottom: 20px;
+    }
+
+    /* ── Status Grid ── */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    /* ── Status Card ── */
+    .status-card {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      position: relative;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .status-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+
+    .status-card.ok       { border-left: 4px solid var(--nn-green); }
+    .status-card.warning  { border-left: 4px solid var(--nn-amber); }
+    .status-card.error    { border-left: 4px solid var(--nn-red); background: var(--nn-red-bg); }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .card-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .card-label {
+      font-family: Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--nn-brown);
+    }
+
+    .card-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-badge.ok      { background: var(--nn-green-bg); color: var(--nn-green); }
+    .card-badge.warning { background: var(--nn-amber-bg); color: var(--nn-amber); }
+    .card-badge.error   { background: #fce4e4; color: var(--nn-red); }
+
+    .card-detail {
+      font-size: 12.5px;
+      color: #6b5e53;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    .card-fix {
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px dashed #e0c8c5;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--nn-red);
+      line-height: 1.5;
+      display: none;
+    }
+
+    .status-card.error .card-fix,
+    .status-card.warning .card-fix {
+      display: block;
+    }
+
+    .card-fix strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ── Stats Row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--nn-brown);
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #8a7d6e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    /* ── Recent Activity ── */
+    .recent-section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-family: Georgia, serif;
+      font-size: 16px;
+      color: var(--nn-brown);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--nn-border);
+    }
+
+    .recent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .recent-item {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .recent-icon { font-size: 20px; flex-shrink: 0; }
+
+    .recent-info { flex: 1; min-width: 0; }
+
+    .recent-info .label {
+      font-size: 11px;
+      color: #8a7d6e;
+      text-transform: uppercase;
+    }
+
+    .recent-info .value {
+      font-size: 13px;
+      color: var(--nn-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .recent-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .recent-badge.ok { background: var(--nn-green-bg); color: var(--nn-green); }
+    .recent-badge.fail { background: #fce4e4; color: var(--nn-red); }
+
+    /* ── Test Results Panel ── */
+    .results-panel {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .results-panel.visible { display: block; }
+
+    .results-panel h3 {
+      font-family: Georgia, serif;
+      font-size: 15px;
+      color: var(--nn-brown);
+      margin-bottom: 10px;
+    }
+
+    .result-line {
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f5f0e8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-line:last-child { border-bottom: none; }
+
+    .result-line .status-icon { flex-shrink: 0; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--nn-brown);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 9999;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--nn-green); }
+    .toast.error { background: var(--nn-red); }
+
+    /* ── Loading Overlay ── */
+    .loading-text {
+      text-align: center;
+      padding: 60px 20px;
+      color: #8a7d6e;
+      font-size: 15px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 700px) {
+      .topbar { padding: 12px 16px; }
+      .topbar h1 { font-size: 16px; }
+      .container { padding: 16px 12px 30px; }
+      .status-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .stat-value { font-size: 22px; }
+      .control-bar { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="logo-area">
+      <span class="logo-icon">🩺</span>
+      <h1>NutriNuts System Health</h1>
+    </div>
+    <div class="meta">
+      <span id="topbar-time">Checking…</span>
+      <span>v2.1.0</span>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+      <button class="btn btn-primary" id="btn-check" onclick="runSystemCheck()">
+        🔄 Run System Check
+      </button>
+      <button class="btn btn-secondary" id="btn-push-all" onclick="sendTestPushAll()">
+        📬 Test Push (All Devices)
+      </button>
+      <button class="btn btn-outline" id="btn-email" onclick="sendTestEmail()">
+        ✉️ Test Email
+      </button>
+      <button class="btn btn-outline" id="btn-refresh" onclick="location.reload()">
+        ↻ Refresh Page
+      </button>
+    </div>
+
+    <div class="last-checked" id="last-checked">Initialising…</div>
+
+    <!-- Status Grid -->
+    <div class="status-grid" id="status-grid">
+      <div class="loading-text">⏳ Running system checks…</div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row" id="stats-row"></div>
+
+    <!-- Recent Activity -->
+    <div class="recent-section" id="recent-section" style="display:none;">
+      <div class="section-title">📋 Recent Activity</div>
+      <div class="recent-grid" id="recent-grid"></div>
+    </div>
+
+    <!-- Test Results Panel -->
+    <div class="results-panel" id="results-panel">
+      <h3 id="results-title">Test Results</h3>
+      <div id="results-body"></div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzajJGRq456pL82TGsRATSjH8-exOeuBWdqxH7HQeMC6F1zOV_5HuLZiFUSaXHIbotbzA/exec';
+
+    /* ── System Check ── */
+    async function runSystemCheck() {
+      const btn = document.getElementById('btn-check');
+      setLoading(btn, true, 'Checking…');
+
+      try {
+        const resp = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'system-health' }),
+        });
+
+        if (!resp.ok) throw new Error('GAS endpoint returned HTTP ' + resp.status);
+
+        // Safely parse JSON — GAS may return HTML error pages on failure
+        let data;
+        try {
+          data = await resp.json();
+        } catch (parseErr) {
+          throw new Error('Invalid response from server — GAS deployment may need updating. (' + parseErr.message + ')');
+        }
+
+        renderStatusGrid(data);
+        renderStats(data);
+        renderRecent(data);
+        updateTimestamp(data.timestamp);
+      } catch (err) {
+        showAllError('Failed to run system check: ' + err.message);
+      }
+
+      setLoading(btn, false, '🔄 Run System Check');
+    }
+
+    /* ── Test Push All ── */
+    async function sendTestPushAll() {
+      const btn = document.getElementById('btn-push-all');
+      setLoading(btn, true, 'Sending…');
+
+      try {
+        const resp = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'test-push-all' }),
+        });
+
+        let data;
+        try {
+          data = await resp.json();
+        } catch (parseErr) {
+          throw new Error('Invalid response from server. GAS may be down or returning errors.');
+        }
+        showResults('📬 Broadcast Push Result', [
+          { icon: '📊', text: 'Devices found: ' + (data.devicesFound || 0) },
+          { icon: '✅', text: 'Sent successfully: ' + (data.sent || 0) },
+          { icon: '❌', text: 'Failed: ' + (data.failed || 0) },
+        ].concat((data.errors || []).map(function(e) {
+          return { icon: '⚠️', text: e, isError: true };
+        })));
+
+        if (data.success) {
+          showToast('Test push broadcast complete — ' + data.sent + ' devices notified.', 'success');
+        } else {
+          showToast('Test push had ' + (data.failed || 0) + ' failure(s). See results below.', 'error');
+        }
+      } catch (err) {
+        showResults('📬 Broadcast Push — Error', [
+          { icon: '❌', text: err.message, isError: true },
+        ]);
+        showToast('Push broadcast failed: ' + err.message, 'error');
+      }
+
+      setLoading(btn, false, '📬 Test Push (All Devices)');
+    }
+
+    /* ── Test Email ── */
+    async function sendTestEmail() {
+      const btn = document.getElementById('btn-email');
+      setLoading(btn, true, 'Sending…');
+
+      try {
+        const resp = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'test-email' }),
+        });
+
+        let data;
+        try {
+          data = await resp.json();
+        } catch (parseErr) {
+          throw new Error('Invalid response from server. GAS may be down or returning errors.');
+        }
+        var lines = (data.results || []).map(function(r) {
+          return {
+            icon: r.success ? '✅' : '❌',
+            text: r.recipient + (r.success ? ' — Delivered' : ' — Failed: ' + (r.error || 'Unknown')),
+            isError: !r.success,
+          };
+        });
+
+        showResults('✉️ Email Test Result', lines);
+
+        if (data.success) {
+          showToast('Test emails delivered to both recipients.', 'success');
+        } else {
+          showToast('One or more test emails failed. See results below.', 'error');
+        }
+      } catch (err) {
+        showResults('✉️ Email Test — Error', [
+          { icon: '❌', text: err.message, isError: true },
+        ]);
+        showToast('Email test failed: ' + err.message, 'error');
+      }
+
+      setLoading(btn, false, '✉️ Test Email');
+    }
+
+    /* ── Render Status Grid ── */
+    function renderStatusGrid(data) {
+      var cards = [
+        {
+          id: 'googleSheets',
+          icon: '📊',
+          label: 'Google Sheets API',
+          status: data.googleSheets.status,
+          detail: data.googleSheets.detail,
+          fix: 'Verify the Google Sheets spreadsheet exists and the Apps Script has permission to access it. Check Extensions → Apps Script → Project Settings → Authorised scopes.',
+        },
+        {
+          id: 'appsScript',
+          icon: '⚙️',
+          label: 'Google Apps Script',
+          status: data.appsScript.status,
+          detail: data.appsScript.detail + ' (v' + data.appsScript.version + ')',
+          fix: 'The Apps Script web app may need redeployment. Go to Extensions → Apps Script → Deploy → Manage deployments → Update.',
+        },
+        {
+          id: 'firebase',
+          icon: '🔥',
+          label: 'Firebase Cloud Messaging',
+          status: data.firebase.status,
+          detail: data.firebase.detail,
+          fix: 'Check FIREBASE_SERVICE_ACCOUNT in Script Properties. Verify the Service Account key is valid in Firebase Console → Project Settings → Service accounts. Regenerate the key if expired.',
+        },
+        {
+          id: 'email',
+          icon: '✉️',
+          label: 'Email Service',
+          status: data.email.status,
+          detail: data.email.detail,
+          fix: 'Google Workspace accounts have a daily sending limit (100-1500 emails/day). The quota resets at midnight Pacific Time. If quota is not the issue, check that the GAS project has MailApp authorised.',
+        },
+        {
+          id: 'whatsapp',
+          icon: '💬',
+          label: 'WhatsApp Integration',
+          status: data.whatsapp.status,
+          detail: data.whatsapp.detail,
+          fix: 'WhatsApp runs entirely client-side via wa.me links. Verify CONFIG.whatsapp is set correctly in assets/js/config.js and the phone number is active on WhatsApp Business.',
+        },
+        {
+          id: 'devices',
+          icon: '📱',
+          label: 'Registered Devices',
+          status: data.devices.active > 0 ? 'ok' : (data.devices.registered > 0 ? 'warning' : 'warning'),
+          detail: data.devices.registered + ' registered, ' + data.devices.active + ' active',
+          fix: data.devices.registered === 0
+            ? 'No devices registered. Visit /pages/admin-register.html on each admin device to enable push notifications.'
+            : 'Some devices are inactive. Devices may need to re-register if they were unregistered or their FCM token expired. Visit /pages/admin-register.html to re-register.',
+        },
+      ];
+
+      var html = '';
+      cards.forEach(function(card) {
+        var statusClass = card.status === 'ok' ? 'ok' : (card.status === 'warning' ? 'warning' : 'error');
+        var badgeText = card.status === 'ok' ? 'OK' : (card.status === 'warning' ? 'WARNING' : 'FAIL');
+        html += [
+          '<div class="status-card ' + statusClass + '">',
+          '  <div class="card-header">',
+          '    <span class="card-icon">' + card.icon + '</span>',
+          '    <span class="card-label">' + card.label + '</span>',
+          '    <span class="card-badge ' + statusClass + '">' + badgeText + '</span>',
+          '  </div>',
+          '  <div class="card-detail">' + escapeHtml(card.detail) + '</div>',
+          '  <div class="card-fix"><strong>🔧 Recommended Fix:</strong>' + escapeHtml(card.fix) + '</div>',
+          '</div>',
+        ].join('\n');
+      });
+
+      document.getElementById('status-grid').innerHTML = html;
+    }
+
+    /* ── Render Stats ── */
+    function renderStats(data) {
+      var stats = [
+        { value: data.devices.registered >= 0 ? data.devices.registered : '—', label: 'Total Devices' },
+        { value: data.devices.active >= 0 ? data.devices.active : '—', label: 'Active Devices' },
+        { value: data.today.orders, label: 'Orders Today' },
+        { value: data.today.notificationsSent, label: 'Push Notifications Today' },
+        { value: data.today.notificationsFailed, label: 'Failed Today' },
+      ];
+
+      var html = '';
+      stats.forEach(function(s) {
+        var valClass = '';
+        if (s.label === 'Failed Today' && s.value > 0) valClass = ' style="color:var(--nn-red);"';
+        html += '<div class="stat-card"><div class="stat-value"' + valClass + '>' + s.value + '</div><div class="stat-label">' + s.label + '</div></div>';
+      });
+
+      document.getElementById('stats-row').innerHTML = html;
+    }
+
+    /* ── Render Recent Activity ── */
+    function renderRecent(data) {
+      var section = document.getElementById('recent-section');
+      var grid = document.getElementById('recent-grid');
+
+      var hasData = data.lastOrder.orderId || data.lastPush.timestamp || data.lastEmail.timestamp;
+      if (!hasData) { section.style.display = 'none'; return; }
+
+      section.style.display = 'block';
+      var html = '';
+
+      if (data.lastOrder.orderId) {
+        html += [
+          '<div class="recent-item">',
+          '  <span class="recent-icon">🛒</span>',
+          '  <div class="recent-info">',
+          '    <div class="label">Last Order</div>',
+          '    <div class="value">' + escapeHtml(data.lastOrder.orderId) + ' — ' + escapeHtml(data.lastOrder.timestamp) + '</div>',
+          '  </div>',
+          '</div>',
+        ].join('\n');
+      }
+
+      if (data.lastPush.timestamp) {
+        html += [
+          '<div class="recent-item">',
+          '  <span class="recent-icon">📬</span>',
+          '  <div class="recent-info">',
+          '    <div class="label">Last Push Notification</div>',
+          '    <div class="value">' + escapeHtml(data.lastPush.timestamp) + '</div>',
+          '  </div>',
+          '  <span class="recent-badge ' + (data.lastPush.success ? 'ok' : 'fail') + '">' + (data.lastPush.success ? 'OK' : 'FAIL') + '</span>',
+          '</div>',
+        ].join('\n');
+      }
+
+      if (data.lastEmail.timestamp) {
+        html += [
+          '<div class="recent-item">',
+          '  <span class="recent-icon">✉️</span>',
+          '  <div class="recent-info">',
+          '    <div class="label">Last Email Sent</div>',
+          '    <div class="value">' + escapeHtml(data.lastEmail.timestamp) + '</div>',
+          '  </div>',
+          '  <span class="recent-badge ' + (data.lastEmail.success ? 'ok' : 'fail') + '">' + (data.lastEmail.success ? 'OK' : 'FAIL') + '</span>',
+          '</div>',
+        ].join('\n');
+      }
+
+      grid.innerHTML = html;
+    }
+
+    /* ── Show All Error ── */
+    function showAllError(msg) {
+      document.getElementById('status-grid').innerHTML =
+        '<div class="status-card error"><div class="card-header"><span class="card-icon">❌</span><span class="card-label">Connection Failed</span></div><div class="card-detail">' + escapeHtml(msg) + '</div><div class="card-fix"><strong>🔧 Recommended Fix:</strong>Verify the Google Apps Script deployment is active and the URL is correct. Check your internet connection. The GAS endpoint may need redeployment.</div></div>';
+      document.getElementById('stats-row').innerHTML = '';
+      document.getElementById('recent-section').style.display = 'none';
+      updateTimestamp(null);
+    }
+
+    /* ── Results Panel ── */
+    function showResults(title, lines) {
+      var panel = document.getElementById('results-panel');
+      document.getElementById('results-title').textContent = title;
+      var html = '';
+      lines.forEach(function(l) {
+        html += '<div class="result-line"><span class="status-icon">' + l.icon + '</span><span style="' + (l.isError ? 'color:var(--nn-red)' : '') + '">' + escapeHtml(l.text) + '</span></div>';
+      });
+      document.getElementById('results-body').innerHTML = html;
+      panel.classList.add('visible');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    /* ── Helpers ── */
+    function setLoading(btn, loading, text) {
+      btn.disabled = loading;
+      btn.innerHTML = loading
+        ? '<span class="spinner"></span> ' + text
+        : text;
+    }
+
+    function updateTimestamp(iso) {
+      var el = document.getElementById('last-checked');
+      var time = iso ? new Date(iso).toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }) : 'Unknown';
+      el.textContent = iso
+        ? '✅ Last checked: ' + time + ' (PKT)'
+        : '⚠️ Last checked: failed — see errors below';
+      document.getElementById('topbar-time').textContent = iso
+        ? 'Last check: ' + time
+        : 'Check failed';
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (type || '') + ' show';
+      clearTimeout(t._timeout);
+      t._timeout = setTimeout(function() { t.classList.remove('show'); }, 4500);
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    /* ── Init ── */
+    document.addEventListener('DOMContentLoaded', function() {
+      runSystemCheck();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Registration — NutriNuts Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Site CSS -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <style>
+    /* ── Admin Page Specific Styles ── */
+    :root {
+      --nn-brown: #3B1007;
+      --nn-cream: #F5C584;
+      --nn-green: #408743;
+      --nn-bg: #FFFBF5;
+      --nn-text: #2C2C2C;
+      --nn-border: #e0d5c5;
+    }
+
+    .admin-page {
+      min-height: 100vh;
+      background: var(--nn-bg);
+      padding: 60px 20px 80px;
+    }
+
+    .admin-container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .admin-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .admin-header .logo-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .admin-header h1 {
+      font-family: Georgia, serif;
+      font-size: 26px;
+      color: var(--nn-brown);
+      margin: 0 0 6px 0;
+    }
+
+    .admin-header p {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #6b5e53;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ── Card ── */
+    .admin-card {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 12px;
+      padding: 32px 28px;
+      box-shadow: 0 2px 12px rgba(59, 16, 7, 0.06);
+    }
+
+    .admin-card + .admin-card {
+      margin-top: 20px;
+    }
+
+    .admin-card h2 {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      color: var(--nn-brown);
+      margin: 0 0 8px 0;
+    }
+
+    .admin-card .card-desc {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      color: #6b5e53;
+      margin: 0 0 20px 0;
+      line-height: 1.5;
+    }
+
+    /* ── Status Badge ── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: #faf7f2;
+      border: 1px solid var(--nn-border);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-dot.active { background: #408743; box-shadow: 0 0 0 4px rgba(64, 135, 67, 0.15); }
+    .status-dot.inactive { background: #c4a87c; }
+    .status-dot.error { background: #c0392b; }
+
+    .status-text {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: var(--nn-text);
+      flex: 1;
+    }
+
+    .status-text small {
+      display: block;
+      font-size: 12px;
+      color: #8a7d6e;
+      margin-top: 2px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--nn-brown);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #4d1a0d;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 16, 7, 0.2);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--nn-brown);
+      border: 1.5px solid var(--nn-brown);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #fef9f2;
+    }
+
+    .btn-test {
+      background: #fff;
+      color: var(--nn-green);
+      border: 1.5px solid var(--nn-green);
+    }
+
+    .btn-test:hover:not(:disabled) {
+      background: #f4faf3;
+    }
+
+    .btn-danger {
+      background: #fff;
+      color: #c0392b;
+      border: 1.5px solid #e0c8c5;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #fef5f4;
+      border-color: #c0392b;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-row .btn {
+      flex: 1;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--nn-brown);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 14px;
+      z-index: 9999;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success { background: #408743; }
+    .toast.error { background: #c0392b; }
+
+    /* ── Loading Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Info Box ── */
+    .info-box {
+      background: #fef9f2;
+      border-left: 3px solid var(--nn-cream);
+      padding: 14px 16px;
+      border-radius: 6px;
+      margin-top: 16px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 12px;
+      color: #6b5e53;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: var(--nn-brown);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 540px) {
+      .admin-page {
+        padding: 40px 16px 60px;
+      }
+      .admin-card {
+        padding: 24px 20px;
+      }
+      .btn-row {
+        flex-direction: column;
+      }
+      .admin-header h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-page">
+    <div class="admin-container">
+
+      <!-- Header -->
+      <div class="admin-header">
+        <div class="logo-icon">🔔</div>
+        <h1>Device Registration</h1>
+        <p>Register this device to receive instant push notifications<br>when new orders are placed on NutriNuts.</p>
+      </div>
+
+      <!-- Registration Card -->
+      <div class="admin-card" id="register-card">
+        <h2>📱 Push Notifications</h2>
+        <p class="card-desc">After registering, you'll get a push notification on this device for every new order — even when the browser is minimised or your phone is locked.</p>
+
+        <!-- Status -->
+        <div class="status-row" id="status-row">
+          <div class="status-dot inactive" id="status-dot"></div>
+          <div class="status-text" id="status-text">
+            Not registered
+            <small>Click the button below to enable</small>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="btn-row" id="action-buttons">
+          <button class="btn btn-primary" id="btn-register" onclick="handleRegister()">
+            🔔 Enable Notifications
+          </button>
+        </div>
+
+        <!-- Info -->
+        <div class="info-box" id="device-info" style="display:none;">
+          <strong>Device:</strong> <span id="info-device"></span><br>
+          <strong>Platform:</strong> <span id="info-platform"></span><br>
+          <strong>Token:</strong> <span id="info-token" style="font-size:11px;word-break:break-all;"></span>
+        </div>
+      </div>
+
+      <!-- Test Card (hidden until registered) -->
+      <div class="admin-card" id="test-card" style="display:none;">
+        <h2>🧪 Test & Manage</h2>
+        <p class="card-desc">Verify your setup works, or unregister this device.</p>
+
+        <div class="btn-row">
+          <button class="btn btn-test" id="btn-test" onclick="handleTest()">
+            📬 Send Test Notification
+          </button>
+          <button class="btn btn-danger" id="btn-unregister" onclick="handleUnregister()">
+            ✕ Unregister
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase SDK (Compat) — must load before firebase-messaging.js -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+
+  <!-- NutriNuts Scripts -->
+  <script src="../assets/js/firebase-messaging.js"></script>
+
+  <script>
+    /* ── Admin Registration Page Logic ── */
+
+    let registrationState = {
+      registered: false,
+      token: null,
+      deviceName: '',
+      platform: '',
+    };
+
+    // ── On Page Load ──
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if FCM is even possible
+      if (!FCM.checkSupport()) {
+        showStatus('error', 'Unsupported Browser',
+          'Push notifications require a modern browser with Service Worker support. Try Chrome, Edge, or Firefox.');
+        document.getElementById('btn-register').disabled = true;
+        document.getElementById('btn-register').textContent = '⚠️ Browser Not Supported';
+        return;
+      }
+
+      // Detect device info
+      registrationState.deviceName = getDeviceName();
+      registrationState.platform = getPlatform();
+      document.getElementById('info-device').textContent = registrationState.deviceName;
+      document.getElementById('info-platform').textContent = registrationState.platform;
+
+      // Check current permission state
+      if (Notification.permission === 'granted') {
+        showStatus('inactive', 'Permission Granted',
+          'Notification permission is granted but device is not registered for push. Click below to register.');
+      } else if (Notification.permission === 'denied') {
+        showStatus('error', 'Notifications Blocked',
+          'You previously blocked notifications. Go to your browser settings → Site Settings → Notifications → Allow for nutrinuts.pk.');
+        document.getElementById('btn-register').disabled = true;
+        document.getElementById('btn-register').textContent = '🔒 Notifications Blocked';
+      }
+    });
+
+    // ── Register Device ──
+    async function handleRegister() {
+      const btn = document.getElementById('btn-register');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Registering…';
+
+      try {
+        const result = await FCM.registerDevice(registrationState.deviceName);
+
+        if (!result.granted) {
+          showToast('Permission denied. Please allow notifications in your browser settings.', 'error');
+          showStatus('error', 'Permission Denied',
+            'You need to allow notifications to receive order alerts.');
+          btn.disabled = false;
+          btn.textContent = '🔔 Try Again';
+          return;
+        }
+
+        if (!result.token) {
+          showToast(result.error || 'Could not get push token. Check Firebase configuration.', 'error');
+          showStatus('error', 'Token Error',
+            result.error || 'FCM token retrieval failed. Check browser console for details.');
+          btn.disabled = false;
+          btn.textContent = '🔄 Retry';
+          return;
+        }
+
+        // Success!
+        registrationState.registered = true;
+        registrationState.token = result.token;
+
+        showStatus('active', 'Registered & Active',
+          'You will receive push notifications for new orders on this device.');
+        document.getElementById('info-token').textContent = result.token;
+        document.getElementById('device-info').style.display = 'block';
+
+        // Swap buttons
+        btn.style.display = 'none';
+        document.getElementById('test-card').style.display = 'block';
+
+        showToast('✅ Device registered! You will now receive order notifications.', 'success');
+      } catch (err) {
+        console.error('Registration error:', err);
+        showToast('Registration failed: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = '🔄 Retry';
+      }
+    }
+
+    // ── Test Notification ──
+    async function handleTest() {
+      const btn = document.getElementById('btn-test');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Sending…';
+
+      try {
+        const result = await FCM.sendTestNotification();
+
+        if (result.success) {
+          showToast('✅ Test notification sent! Check your device for the push message.', 'success');
+        } else {
+          showToast('Test failed: ' + (result.error || 'Unknown error'), 'error');
+        }
+      } catch (err) {
+        showToast('Test failed: ' + err.message, 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = '📬 Send Test Notification';
+    }
+
+    // ── Unregister Device ──
+    async function handleUnregister() {
+      if (!confirm('Stop receiving order notifications on this device?')) return;
+
+      const btn = document.getElementById('btn-unregister');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Unregistering…';
+
+      try {
+        const result = await FCM.unregisterDevice();
+
+        if (result.success) {
+          registrationState.registered = false;
+          registrationState.token = null;
+
+          showStatus('inactive', 'Unregistered',
+            'This device will no longer receive push notifications.');
+          document.getElementById('device-info').style.display = 'none';
+          document.getElementById('test-card').style.display = 'none';
+
+          const regBtn = document.getElementById('btn-register');
+          regBtn.style.display = 'block';
+          regBtn.disabled = false;
+          regBtn.textContent = '🔔 Enable Notifications';
+
+          showToast('Device unregistered. You can re-register anytime.', 'success');
+        } else {
+          showToast('Unregister failed: ' + (result.error || 'Unknown error'), 'error');
+          btn.disabled = false;
+          btn.textContent = '✕ Unregister';
+        }
+      } catch (err) {
+        showToast('Unregister failed: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = '✕ Unregister';
+      }
+    }
+
+    // ── UI Helpers ──
+    function showStatus(state, title, detail) {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+
+      dot.className = 'status-dot ' + state;
+      text.innerHTML = '<strong>' + title + '</strong><small>' + detail + '</small>';
+    }
+
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + (type || '') + ' show';
+
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    function getDeviceName() {
+      const ua = navigator.userAgent;
+      if (/Android/.test(ua)) return 'Android Phone';
+      if (/iPhone|iPad|iPod/.test(ua)) return 'iPhone / iPad';
+      if (/Windows/.test(ua)) return 'Windows PC';
+      if (/Macintosh|Mac OS X/.test(ua)) return 'Mac';
+      if (/Linux/.test(ua)) return 'Linux Desktop';
+      return 'Unknown Device';
+    }
+
+    function getPlatform() {
+      const ua = navigator.userAgent;
+      if (/Android/.test(ua)) return 'android';
+      if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
+      if (/Windows|Macintosh|Linux/.test(ua)) return 'desktop';
+      return 'unknown';
+    }
+  </script>
+</body>
+</html>

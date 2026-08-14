@@ -405,6 +405,22 @@ async function placeOrder() {
     console.warn('Google Sheets save failed, continuing with WhatsApp:', e);
   }
 
+  // ── Admin Notifications (never blocks checkout) ──
+  // Channel 1: Local browser notification (instant, zero latency)
+  try {
+    if (typeof Notifications !== 'undefined') {
+      Notifications.notifyNewOrder(formData);
+    }
+  } catch (e) {
+    console.warn('Local notification delivery failed:', e);
+  }
+
+  // Channel 2: FCM push notification relay via Google Apps Script backend
+  // The GAS backend sends FCM push to all registered admin devices.
+  // This is handled server-side in handleOrder() — no client call needed here.
+  // The order data is already sent to GAS via saveToGoogleSheets() above,
+  // which triggers sendOrderPushNotification() on the backend.
+
   submitBtn.disabled = false;
   submitBtn.textContent = 'Place Order';
 
@@ -554,6 +570,10 @@ function initPageSpecific() {
     const locateBtn = document.getElementById('locate-btn');
     if (locateBtn) {
       locateBtn.addEventListener('click', detectLocation);
+    }
+    // Request notification permission early (prompts user before checkout completes)
+    if (typeof Notifications !== 'undefined') {
+      Notifications.requestPermission();
     }
   }
 }
