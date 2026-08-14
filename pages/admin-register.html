@@ -410,6 +410,14 @@
           return;
         }
 
+        if (result.error) {
+          showToast('Registration failed: ' + result.error, 'error');
+          showStatus('error', 'Registration Failed', result.error);
+          btn.disabled = false;
+          btn.textContent = '🔄 Retry';
+          return;
+        }
+
         // Success!
         registrationState.registered = true;
         registrationState.token = result.token;

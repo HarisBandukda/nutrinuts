@@ -211,7 +211,7 @@ const FCM = (() => {
     try {
       const response = await fetch(GAS_REGISTER_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body: JSON.stringify({
           type: 'test-notification',
           token: currentToken,
@@ -229,7 +229,7 @@ const FCM = (() => {
   async function sendTokenToBackend(action, token, deviceName) {
     const response = await fetch(GAS_REGISTER_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
       body: JSON.stringify({
         type: action,
         token: token,
