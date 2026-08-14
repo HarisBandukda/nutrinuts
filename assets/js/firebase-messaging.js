@@ -44,6 +44,7 @@ const FCM = (() => {
   /* ─────────── State ─────────── */
   let messaging = null;
   let currentToken = null;
+  let swRegistration = null;
   let isSupported = false;
   let isInitialised = false;
   let tokenRefreshHandlerSet = false; // Guards against duplicate onTokenRefresh listeners
@@ -79,11 +80,14 @@ const FCM = (() => {
 
       messaging = firebase.messaging();
 
-      // Register the FCM service worker (firebase-messaging-sw.js)
-      // The SDK auto-detects it at the site root
-      if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
-        // Wait for SW to be ready
-        await navigator.serviceWorker.ready;
+      // Register the FCM service worker (firebase-messaging-sw.js).
+      // The Firebase v10 SDK does NOT auto-register it — we must register it
+      // ourselves and pass the registration to getToken(). Waiting on
+      // navigator.serviceWorker.ready would hang forever on a page with no
+      // prior service worker (e.g. the admin-register page).
+      if ('serviceWorker' in navigator) {
+        swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+        console.log('[FCM] FCM Service Worker registered:', swRegistration.scope);
       }
 
       isSupported = true;
@@ -130,7 +134,7 @@ const FCM = (() => {
     try {
       currentToken = await messaging.getToken({
         vapidKey: VAPID_KEY,
-        serviceWorkerRegistration: await navigator.serviceWorker.ready,
+        serviceWorkerRegistration: swRegistration,
       });
 
       if (!currentToken) {
@@ -159,7 +163,7 @@ const FCM = (() => {
         try {
           const refreshedToken = await messaging.getToken({
             vapidKey: VAPID_KEY,
-            serviceWorkerRegistration: await navigator.serviceWorker.ready,
+            serviceWorkerRegistration: swRegistration,
           });
           currentToken = refreshedToken;
           await sendTokenToBackend('register-device', refreshedToken, deviceName);
@@ -184,7 +188,7 @@ const FCM = (() => {
         // Delete token from Firebase
         await messaging.deleteToken({
           vapidKey: VAPID_KEY,
-          serviceWorkerRegistration: await navigator.serviceWorker.ready,
+          serviceWorkerRegistration: swRegistration,
         });
         // Tell backend to remove it
         await sendTokenToBackend('unregister-device', currentToken);
