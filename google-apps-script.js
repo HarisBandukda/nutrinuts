@@ -102,12 +102,165 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  // ═══════════════════════════════════════════════════════════════
+  // TEMPORARY DIAGNOSTIC — REMOVE BEFORE PRODUCTION.
+  // /exec?action=diagnostic&key=<DIAGNOSTIC_KEY> — gated by the secret
+  // Script Property DIAGNOSTIC_KEY. Unauthorized otherwise.
+  // ═══════════════════════════════════════════════════════════════
+  if (e && e.parameter && e.parameter.action === 'diagnostic') {
+    var diagKey = PropertiesService.getScriptProperties().getProperty('DIAGNOSTIC_KEY');
+    var suppliedKey = (e.parameter && e.parameter.key) ? String(e.parameter.key) : '';
+    if (!diagKey || suppliedKey !== diagKey) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ error: 'unauthorized' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify(diagnoseServiceAccount()))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({
       status: 'NutriNuts API is running',
       version: '2.1.0-fcm-health-monitor',
     }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * TEMPORARY DIAGNOSTIC — Safely validates the FIREBASE_SERVICE_ACCOUNT
+ * Script Property and returns ONLY non-secret metadata.
+ *
+ * NEVER returns or logs: the private key, the service-account client
+ * email, access tokens, or JWTs. Reports structure only: presence,
+ * lengths, PEM header type, newline status, field names, project_id,
+ * and booleans.
+ *
+ * Run:  <deployment-url>/exec?action=diagnostic&key=<DIAGNOSTIC_KEY>
+ *       (gated by DIAGNOSTIC_KEY in Script Properties — see doGet)
+ *       or select `diagnoseServiceAccount` in the Apps Script editor → Run.
+ */
+function diagnoseServiceAccount() {
+  var d = {
+    status: 'unknown',
+    propertyFound: false,
+    rawLength: 0,
+    jsonParsePassed: false,
+    jsonIsObject: false,
+    parsedFields: [],
+    projectId: null,
+    privateKeyPresent: false,
+    privateKeyLength: 0,
+    privateKeyHeader: null,
+    privateKeyHasRealNewlines: false,
+    privateKeyHasEscapedNewlines: false,
+    privateKeyLineCount: 0,
+    privateKeyBase64Length: 0,
+    signingTestPassed: null,
+    oauthExchangePassed: null,
+    issues: [],
+  };
+
+  try {
+    var saJson = PropertiesService.getScriptProperties().getProperty('FIREBASE_SERVICE_ACCOUNT');
+
+    if (!saJson || saJson.trim() === '') {
+      d.status = 'error';
+      d.issues.push('Property "FIREBASE_SERVICE_ACCOUNT" is missing or empty. Check it is a SCRIPT property (not User) with that exact name.');
+      return d;
+    }
+    d.propertyFound = true;
+    d.rawLength = saJson.length;
+
+    // Parse — JSON.parse error messages carry a position, never key content.
+    var obj;
+    try {
+      obj = JSON.parse(saJson);
+    } catch (parseErr) {
+      d.status = 'error';
+      d.issues.push('JSON.parse failed: ' + parseErr.message);
+      return d;
+    }
+    d.jsonParsePassed = true;
+
+    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+      d.status = 'error';
+      d.issues.push('Parsed value is a ' + (Array.isArray(obj) ? 'array' : String(typeof obj)) + ', not an object — likely double-encoded.');
+      return d;
+    }
+    d.jsonIsObject = true;
+    d.parsedFields = Object.keys(obj); // field names only
+
+    // client_email is validated (present + string) but its VALUE is not exposed.
+    if (!obj.client_email || typeof obj.client_email !== 'string') {
+      d.issues.push('client_email is missing, empty, or not a string.');
+    }
+
+    if (obj.project_id && typeof obj.project_id === 'string') {
+      d.projectId = obj.project_id; // already public in frontend config
+    } else {
+      d.issues.push('project_id is missing, empty, or not a string.');
+    }
+
+    if (!obj.private_key || typeof obj.private_key !== 'string' || obj.private_key.trim() === '') {
+      d.issues.push('private_key is missing, empty, or not a string.');
+    } else {
+      d.privateKeyPresent = true;
+      d.privateKeyLength = obj.private_key.length;
+      var hdr = obj.private_key.match(/-----BEGIN [A-Z0-9 ]+PRIVATE KEY-----/);
+      d.privateKeyHeader = hdr ? hdr[0] : null;
+      d.privateKeyHasRealNewlines = obj.private_key.indexOf('\n') !== -1;
+      d.privateKeyHasEscapedNewlines = obj.private_key.indexOf('\\n') !== -1;
+      d.privateKeyLineCount = obj.private_key.split('\n').length;
+      var body = obj.private_key
+        .replace(/-----BEGIN [A-Z0-9 ]+PRIVATE KEY-----/g, '')
+        .replace(/-----END [A-Z0-9 ]+PRIVATE KEY-----/g, '')
+        .replace(/[\s\r\n]+/g, '');
+      d.privateKeyBase64Length = body.length;
+
+      if (d.privateKeyHeader !== '-----BEGIN PRIVATE KEY-----') {
+        d.issues.push('private_key header is "' + (d.privateKeyHeader || 'none') + '" — expected PKCS#8 "-----BEGIN PRIVATE KEY-----".');
+      }
+      if (!d.privateKeyHasRealNewlines) {
+        d.issues.push('private_key has no real newline characters — line breaks were likely lost (RSA signing will fail).');
+      }
+      if (d.privateKeyHasEscapedNewlines) {
+        d.issues.push('private_key contains literal "\\n" sequences instead of real newlines — double-encoded/stringified.');
+      }
+      if (d.privateKeyBase64Length < 1500) {
+        d.issues.push('private_key base64 body is unusually short (' + d.privateKeyBase64Length + ' chars) — possibly truncated.');
+      }
+
+      // Signing test — boolean only, never echo the key or its error message.
+      try {
+        Utilities.computeRsaSha256Signature('nutrinuts-diagnostic', obj.private_key);
+        d.signingTestPassed = true;
+      } catch (signErr) {
+        d.signingTestPassed = false;
+        d.issues.push('RSA signing test FAILED — private_key is not usable by Utilities.computeRsaSha256Signature.');
+      }
+    }
+
+    // ── OAuth token exchange test (boolean only — never expose the token/JWT) ──
+    try {
+      var t = getFCMAccessToken(); // token is discarded here, never returned/logged
+      d.oauthExchangePassed = !!t;
+      if (!d.oauthExchangePassed) {
+        d.issues.push('OAuth token exchange FAILED — the specific (safe) reason is in the Executions log via console.error.');
+      }
+    } catch (e2) {
+      d.oauthExchangePassed = false;
+      d.issues.push('OAuth token exchange threw an error.');
+    }
+
+    d.status = (d.issues.length === 0) ? 'ok' : 'error';
+    return d;
+  } catch (e) {
+    d.status = 'error';
+    d.issues.push('Unexpected diagnostic error: ' + e.toString());
+    return d;
+  }
 }
 
 /* ================================================================== */
