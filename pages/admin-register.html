@@ -373,6 +373,9 @@
 
       // Check current permission state
       if (Notification.permission === 'granted') {
+        // Synchronise the current FCM token with the backend (re-registers if it changed).
+        FCM.syncToken(registrationState.deviceName);
+
         showStatus('inactive', 'Permission Granted',
           'Notification permission is granted but device is not registered for push. Click below to register.');
       } else if (Notification.permission === 'denied') {
