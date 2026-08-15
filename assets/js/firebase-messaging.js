@@ -47,8 +47,7 @@ const FCM = (() => {
   let swRegistration = null;
   let isSupported = false;
   let isInitialised = false;
-  let tokenRefreshHandlerSet = false; // Guards against duplicate onTokenRefresh listeners
-
+  
   /* ─────────── Capability Detection ─────────── */
   function checkSupport() {
     // FCM requires: browser notifications, service workers, and IndexedDB
@@ -156,25 +155,52 @@ const FCM = (() => {
       return { granted: true, token: currentToken, error: 'Token obtained but backend registration failed: ' + err.message };
     }
 
-    // Step 4: Listen for token refresh (only once)
-    if (!tokenRefreshHandlerSet) {
-      tokenRefreshHandlerSet = true;
-      messaging.onTokenRefresh(async () => {
-        try {
-          const refreshedToken = await messaging.getToken({
-            vapidKey: VAPID_KEY,
-            serviceWorkerRegistration: swRegistration,
-          });
-          currentToken = refreshedToken;
-          await sendTokenToBackend('register-device', refreshedToken, deviceName);
-          console.log('[FCM] Token refreshed and re-registered.');
-        } catch (err) {
-          console.warn('[FCM] Token refresh failed:', err.message);
-        }
-      });
+    // Step 4 (token refresh): handled on subsequent page loads via syncToken().
+    // messaging.onTokenRefresh() is deprecated in the Firebase JS SDK, so we no
+    // longer register that listener here.
+    return { granted: true, token: currentToken, error: null };
+  }
+
+  /**
+   * Current supported token-refresh approach (replaces the deprecated
+   * messaging.onTokenRefresh()): re-fetch the token with getToken() and
+   * re-register with the backend if it has changed.
+   *
+   * Call this on page load when notification permission is already granted.
+   *
+   * @param {string} deviceName
+   * @returns {Promise<{changed: boolean, token: string|null, error: string|null}>}
+   */
+  async function syncToken(deviceName) {
+    if (!isInitialised) await init();
+    if (!isSupported || !messaging) return { changed: false, token: currentToken, error: null };
+
+    // Never prompt for permission here — only sync when already granted.
+    if (Notification.permission !== 'granted') {
+      return { changed: false, token: currentToken, error: null };
     }
 
-    return { granted: true, token: currentToken, error: null };
+    try {
+      const token = await messaging.getToken({
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: swRegistration,
+      });
+
+      if (!token) {
+        return { changed: false, token: currentToken, error: 'getToken returned no token.' };
+      }
+
+      const changed = token !== currentToken;
+      if (changed) {
+        currentToken = token;
+        await sendTokenToBackend('register-device', token, deviceName);
+        console.log('[FCM] Token changed; re-registered with backend.');
+      }
+      return { changed, token: currentToken, error: null };
+    } catch (err) {
+      console.warn('[FCM] Token sync failed:', err.message);
+      return { changed: false, token: currentToken, error: err.message };
+    }
   }
 
   /**
@@ -288,6 +314,7 @@ const FCM = (() => {
   return {
     init,
     registerDevice,
+    syncToken,
     unregisterDevice,
     sendTestNotification,
     onForegroundMessage,
