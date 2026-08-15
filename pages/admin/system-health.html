@@ -485,7 +485,7 @@
       try {
         const resp = await fetch(GAS_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
           body: JSON.stringify({ type: 'system-health' }),
         });
 
@@ -518,7 +518,7 @@
       try {
         const resp = await fetch(GAS_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
           body: JSON.stringify({ type: 'test-push-all' }),
         });
 
@@ -559,7 +559,7 @@
       try {
         const resp = await fetch(GAS_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
           body: JSON.stringify({ type: 'test-email' }),
         });
 
