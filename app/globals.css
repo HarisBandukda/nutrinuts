@@ -1246,6 +1246,39 @@ input, textarea, select {
   z-index: 1;
 }
 
+/* Product badges — "NEW" and "Best Seller" (Tier 2 #14) */
+.badge-new,
+.badge-best-seller {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.badge-new {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.badge-best-seller {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+/* Inline variant for the product detail page (not absolute on the image) */
+.badge-inline {
+  position: static;
+  display: inline-block;
+  margin-left: 10px;
+  text-transform: none;
+  vertical-align: middle;
+}
+
 .discount-badge {
   display: inline-block;
   background: var(--color-accent);

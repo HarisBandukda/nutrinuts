@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import ProductImage from '@/components/ProductImage';
 import AddToCart from '@/components/AddToCart';
 import ProductReviews from '@/components/ProductReviews';
-import { getProductById, products, formatPackSize, discountPercent } from '@/lib/products';
+import { getProductById, products, formatPackSize, discountPercent, badgeLabel } from '@/lib/products';
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: String(p.id) }));
@@ -32,7 +32,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <ProductImage src={`/images/${product.image}`} alt={product.name} />
           </div>
           <div className="product-detail-info">
-            <div className="product-detail-category">{product.category}</div>
+            <div className="product-detail-category">
+              {product.category}
+              {product.badge && (
+                <span className={`badge-${product.badge} badge-inline`}>{badgeLabel(product.badge)}</span>
+              )}
+            </div>
             <h1>{product.name}</h1>
             <div className="product-detail-price">
               {product.compareAtPrice && product.compareAtPrice > product.price && (

@@ -7,6 +7,7 @@
 // There is no multi-weight-variant selector; quantity is adjusted instead.
 
 export type PackType = 'Pouch' | 'Jar' | 'Box';
+export type ProductBadge = 'new' | 'best-seller';
 
 export interface Product {
   id: number;
@@ -16,6 +17,7 @@ export interface Product {
   packType: PackType;
   price: number;
   compareAtPrice?: number; // original price when on sale (strikethrough)
+  badge?: ProductBadge; // "NEW" / "Best Seller" tag (Tier 2 #14)
   image: string;
   description: string;
 }
@@ -28,6 +30,7 @@ export const products: Product[] = [
     packSize: '250g',
     packType: 'Pouch',
     price: 1150,
+    badge: 'best-seller',
     image: 'Almond (Badam) USA Big.jpg',
     description: 'Premium quality large almonds imported from USA. Perfect for snacking, garnishing, and healthy eating.',
   },
@@ -38,6 +41,7 @@ export const products: Product[] = [
     packSize: '250g',
     packType: 'Pouch',
     price: 1320,
+    badge: 'best-seller',
     image: 'Cashewnuts (Kaju) Plain Big.jpg',
     description: 'Big size plain cashewnuts with a rich, buttery flavor. Ideal for direct consumption and cooking.',
   },
@@ -68,6 +72,7 @@ export const products: Product[] = [
     packSize: '250g',
     packType: 'Pouch',
     price: 1150,
+    badge: 'best-seller',
     image: 'Pistachio (Pista) Super Quality with Shell.jpg',
     description: 'Premium quality pistachios with shell. Naturally colorful and delicious.',
   },
@@ -138,6 +143,7 @@ export const products: Product[] = [
     packSize: '500g',
     packType: 'Jar',
     price: 500,
+    badge: 'new',
     image: 'Honey Golden Clear.jpg',
     description: 'Premium golden clear honey. Perfect for daily use and natural sweetness.',
   },
@@ -178,6 +184,7 @@ export const products: Product[] = [
     packSize: '500g',
     packType: 'Box',
     price: 400,
+    badge: 'new',
     image: 'Mazafati Irani Date (Khajoor).jpg',
     description: 'Premium Mazafati dates from Iran. Soft, juicy, and naturally sweet.',
   },
@@ -188,6 +195,7 @@ export const products: Product[] = [
     packSize: '500g',
     packType: 'Jar',
     price: 1600,
+    badge: 'best-seller',
     image: 'Pure Desi Ghee (Cow) from Punjab.jpg',
     description: 'Traditional pure desi ghee from Punjab. Made from cow milk using authentic methods.',
   },
@@ -242,4 +250,9 @@ export function formatPackSize(p: { packSize: string; packType: PackType }): str
 export function discountPercent(p: Product): number | null {
   if (!p.compareAtPrice || p.compareAtPrice <= p.price) return null;
   return Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100);
+}
+
+// Human label for a product badge (call only when badge is set).
+export function badgeLabel(badge?: ProductBadge): string {
+  return badge === 'new' ? 'NEW' : 'Best Seller';
 }

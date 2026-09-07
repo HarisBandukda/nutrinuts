@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import ProductImage from './ProductImage';
-import { formatPackSize, discountPercent } from '@/lib/products';
+import { formatPackSize, discountPercent, badgeLabel } from '@/lib/products';
 import type { Product } from '@/lib/products';
 import { useCart } from '@/lib/cart';
 
@@ -15,6 +15,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <Link href={`/product/${product.id}`}>
         <div className="product-image">
           <ProductImage src={`/images/${product.image}`} alt={product.name} />
+          {product.badge && <span className={`badge-${product.badge}`}>{badgeLabel(product.badge)}</span>}
           {off && <span className="sale-badge">-{off}%</span>}
         </div>
       </Link>
