@@ -224,7 +224,8 @@ input, textarea, select {
   color: var(--color-white);
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #FFF8F0 0%, var(--color-secondary) 100%);
+  background-color: var(--color-secondary);
+  background-image: url('/images/banner.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1750,6 +1751,7 @@ input, textarea, select {
   .hero {
     min-height: auto;
     padding: 60px 0;
+    background-image: url('/images/banner-mobile.webp');
   }
 
   .hero-content h1 {

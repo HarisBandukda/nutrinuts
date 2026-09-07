@@ -27,7 +27,7 @@ const testimonials = [
 export default function HomePage() {
   return (
     <>
-      <section className="hero" style={{ backgroundImage: "url('/images/banner.jpg')" }}>
+      <section className="hero">
         <div className="hero-overlay"></div>
         <div className="container">
           <div className="hero-content">
