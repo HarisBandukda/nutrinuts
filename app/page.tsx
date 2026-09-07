@@ -1,21 +1,9 @@
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
-import { categories, products } from '@/lib/products';
+import { products } from '@/lib/products';
 import { reviewsByProduct } from '@/lib/reviews';
 
 const featured = products.filter((p) => p.price >= 1000).slice(0, 4);
-
-// Homepage "Shop by Category" — derived from products.ts so names stay in sync.
-const shopCategories = categories.filter((c) => c !== 'All');
-const shopCategorySubtitles: Record<string, string> = {
-  Almonds: 'Premium USA & imported almonds',
-  Cashews: 'Plain & roasted big cashews',
-  Pistachios: 'With shell & ready-to-eat',
-  Walnuts: 'Shelled, omega-3 rich',
-  'Pine Nuts (Chilgoza)': 'Rare & luxurious chilgoza',
-  'Dry Fruits': 'Figs, raisins & premium dried fruits',
-  'Healthy Products': 'Honey, chikki, dates & desi ghee',
-};
 
 // Real, named customer reviews (name, city, date) — Tier 1 item #9.
 const testimonials = [
@@ -28,32 +16,12 @@ export default function HomePage() {
   return (
     <>
       <section className="hero">
-        <div className="hero-overlay"></div>
-        <div className="container">
-          <div className="hero-content">
-            <div className="hero-badge">Premium Quality</div>
-            <h1>Pure. Fresh.<br />Premium Nuts &amp; Dry Fruits</h1>
-            <p>
-              Discover Pakistan&apos;s finest selection of premium nuts, dry fruits, and healthy
-              products. Sourced globally, delivered to your doorstep.
-            </p>
-            <Link href="/shop" className="btn btn-primary">Shop Now →</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Shop by Category</h2>
-          <p className="section-subtitle">Explore our carefully curated categories</p>
-          <div className="categories-grid">
-            {shopCategories.map((c) => (
-              <Link key={c} href={{ pathname: '/shop', query: { category: c } }} className="category-card">
-                <h3>{c}</h3>
-                <p>{shopCategorySubtitles[c] || ''}</p>
-              </Link>
-            ))}
-          </div>
+        <picture className="hero-banner">
+          <source media="(max-width: 768px)" srcSet="/images/banner-mobile.webp" />
+          <img src="/images/banner.webp" alt="Pure. Fresh. Premium Nuts & Dry Fruits" />
+        </picture>
+        <div className="container hero-cta">
+          <Link href="/shop" className="btn btn-primary">Shop Now →</Link>
         </div>
       </section>
 

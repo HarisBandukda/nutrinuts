@@ -1,21 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import { useCart } from '@/lib/cart';
+import { categories } from '@/lib/products';
 
-const links = [
-  { href: '/', label: 'Home' },
-  { href: '/shop', label: 'Shop' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-];
+// Category nav — derived from products.ts so names stay in sync.
+const navCategories = categories
+  .filter((c) => c !== 'All')
+  .map((c) => ({
+    label: c === 'Pine Nuts (Chilgoza)' ? 'Pine Nuts' : c,
+    category: c,
+  }));
 
 export default function Header() {
-  const pathname = usePathname();
   const { count } = useCart();
-  const [open, setOpen] = useState(false);
 
   return (
     <header className="header">
@@ -23,28 +21,20 @@ export default function Header() {
         <Link href="/" className="logo">
           <img src="/images/logo.png" alt="NutriNuts" className="logo-img" />
         </Link>
-        <nav className={'nav' + (open ? ' open' : '')}>
-          {links.map((l) => (
+        <nav className="nav">
+          {navCategories.map((item) => (
             <Link
-              key={l.href}
-              href={l.href}
-              className={'nav-link' + (pathname === l.href ? ' active' : '')}
-              onClick={() => setOpen(false)}
+              key={item.category}
+              href={{ pathname: '/shop', query: { category: item.category } }}
+              className="nav-link"
             >
-              {l.label}
+              {item.label}
             </Link>
           ))}
         </nav>
         <Link href="/cart" className="cart-btn" id="header-cart">
           🛒<span className="cart-count" style={{ display: count > 0 ? 'flex' : 'none' }}>{count}</span>
         </Link>
-        <button
-          className={'hamburger' + (open ? ' active' : '')}
-          aria-label="Toggle menu"
-          onClick={() => setOpen((o) => !o)}
-        >
-          <span></span><span></span><span></span>
-        </button>
       </div>
     </header>
   );
