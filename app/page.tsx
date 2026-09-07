@@ -1,30 +1,33 @@
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
-import { products } from '@/lib/products';
+import { categories, products } from '@/lib/products';
+import { reviewsByProduct } from '@/lib/reviews';
 
 const featured = products.filter((p) => p.price >= 1000).slice(0, 4);
 
-// NOTE: These are placeholder reviews (Tier 1 item #9) — replace with real
-// named customer reviews (name, city, date) once Haris provides them.
+// Homepage "Shop by Category" — derived from products.ts so names stay in sync.
+const shopCategories = categories.filter((c) => c !== 'All');
+const shopCategorySubtitles: Record<string, string> = {
+  Almonds: 'Premium USA & imported almonds',
+  Cashews: 'Plain & roasted big cashews',
+  Pistachios: 'With shell & ready-to-eat',
+  Walnuts: 'Shelled, omega-3 rich',
+  'Pine Nuts (Chilgoza)': 'Rare & luxurious chilgoza',
+  'Dry Fruits': 'Figs, raisins & premium dried fruits',
+  'Healthy Products': 'Honey, chikki, dates & desi ghee',
+};
+
+// Real, named customer reviews (name, city, date) — Tier 1 item #9.
 const testimonials = [
-  {
-    text: "Excellent quality pistachios! The best I've found in Pakistan. Fast delivery and great packaging.",
-    author: 'Ahmed K.',
-  },
-  {
-    text: 'The Mazafati dates are incredibly fresh and juicy. My go-to store for dry fruits now.',
-    author: 'Fatima S.',
-  },
-  {
-    text: 'Pure Desi Ghee is authentic and aromatic. Reminds me of home. Highly recommended!',
-    author: 'Usman R.',
-  },
+  reviewsByProduct['Pistachio (Pista) Super Quality with Shell'][0],
+  reviewsByProduct['Mazafati Irani Date (Khajoor)'][0],
+  reviewsByProduct['Pure Desi Ghee (Cow) from Punjab'][1],
 ];
 
 export default function HomePage() {
   return (
     <>
-      <section className="hero" style={{ backgroundImage: "url('/images/banner.png')" }}>
+      <section className="hero" style={{ backgroundImage: "url('/images/banner.jpg')" }}>
         <div className="hero-overlay"></div>
         <div className="container">
           <div className="hero-content">
@@ -44,18 +47,12 @@ export default function HomePage() {
           <h2 className="section-title">Shop by Category</h2>
           <p className="section-subtitle">Explore our carefully curated categories</p>
           <div className="categories-grid">
-            <Link href={{ pathname: '/shop', query: { category: 'Nuts' } }} className="category-card">
-              <h3>Nuts</h3>
-              <p>Almonds, Cashews, Pistachios, Walnuts &amp; more</p>
-            </Link>
-            <Link href={{ pathname: '/shop', query: { category: 'Dry Fruits' } }} className="category-card">
-              <h3>Dry Fruits</h3>
-              <p>Figs, Raisins &amp; premium dried fruits</p>
-            </Link>
-            <Link href={{ pathname: '/shop', query: { category: 'Healthy Products' } }} className="category-card">
-              <h3>Healthy Products</h3>
-              <p>Honey, Chikki, Dates &amp; Pure Desi Ghee</p>
-            </Link>
+            {shopCategories.map((c) => (
+              <Link key={c} href={{ pathname: '/shop', query: { category: c } }} className="category-card">
+                <h3>{c}</h3>
+                <p>{shopCategorySubtitles[c] || ''}</p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -78,13 +75,17 @@ export default function HomePage() {
       <section className="section">
         <div className="container">
           <h2 className="section-title">What Our Customers Say</h2>
-          <p className="section-subtitle">Trusted by hundreds of customers across Pakistan</p>
+          <p className="section-subtitle">Real reviews from our customers across Pakistan</p>
           <div className="reviews-grid">
             {testimonials.map((t, i) => (
               <div className="review-card" key={i}>
-                <div className="review-stars">★★★★★</div>
+                <div className="review-stars">
+                  {'★'.repeat(t.rating)}
+                  {'☆'.repeat(5 - t.rating)}
+                </div>
                 <p className="review-text">&quot;{t.text}&quot;</p>
-                <div className="review-author">– {t.author}</div>
+                <div className="review-author">– {t.name}, {t.city}</div>
+                <div className="review-author-date">{t.date}</div>
               </div>
             ))}
           </div>

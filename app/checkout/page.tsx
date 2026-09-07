@@ -47,6 +47,7 @@ function buildWhatsAppMessage(data: any): string {
     '━━━━━━━━━━━━━━━━━━',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...data.items.map((i: any) => `*${i.productName}* × ${i.quantity} = Rs. ${i.lineTotal.toLocaleString()}`),
+    data.discount > 0 ? `*Discount (${data.discountCode}):* −Rs. ${data.discount.toLocaleString()}` : '',
     '━━━━━━━━━━━━━━━━━━',
     '*Delivery:* To be confirmed',
     `*Grand Total:* Rs. ${data.grandTotal.toLocaleString()}`,
@@ -59,7 +60,7 @@ function buildWhatsAppMessage(data: any): string {
 }
 
 export default function CheckoutPage() {
-  const { detailedItems, total, clearCart, notify } = useCart();
+  const { detailedItems, subtotal, discount, total, discountCode, discountApplied, clearCart, notify } = useCart();
   const [payment, setPayment] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -126,6 +127,9 @@ export default function CheckoutPage() {
         unitPrice: i.product.price,
         lineTotal: i.product.price * i.quantity,
       })),
+      subtotal,
+      discount: discountApplied ? discount : 0,
+      discountCode: discountApplied ? discountCode : '',
       grandTotal: total,
     };
 
@@ -266,8 +270,14 @@ export default function CheckoutPage() {
               </div>
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>Rs. {total.toLocaleString()}</span>
+                <span>Rs. {subtotal.toLocaleString()}</span>
               </div>
+              {discountApplied && (
+                <div className="summary-row discount">
+                  <span>Discount ({discountCode})</span>
+                  <span>−Rs. {discount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="summary-row delivery">
                 <span>Delivery</span>
                 <span>To be confirmed</span>

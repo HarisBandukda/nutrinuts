@@ -6,5 +6,5 @@ import { useState } from 'react';
 export default function ProductImage({ src, alt }: { src: string; alt: string }) {
   const [error, setError] = useState(false);
   if (error) return <span>🥜</span>;
-  return <img src={src} alt={alt} loading="lazy" onError={() => setError(true)} />;
+  return <img src={src} alt={alt} loading="lazy" decoding="async" onError={() => setError(true)} />;
 }

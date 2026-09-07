@@ -1,12 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart';
 import ProductImage from '@/components/ProductImage';
 import { formatPackSize } from '@/lib/products';
+import { DISCOUNT } from '@/lib/config';
 
 export default function CartPage() {
-  const { detailedItems, removeFromCart, updateQuantity, total } = useCart();
+  const {
+    detailedItems,
+    removeFromCart,
+    updateQuantity,
+    subtotal,
+    discount,
+    total,
+    discountCode,
+    discountApplied,
+    applyDiscountCode,
+    removeDiscountCode,
+  } = useCart();
+  const [codeInput, setCodeInput] = useState('');
 
   return (
     <section className="cart-page">
@@ -47,10 +61,35 @@ export default function CartPage() {
             </div>
             <div className="cart-summary">
               <h3>Order Summary</h3>
+              <div className="discount-code">
+                {discountApplied ? (
+                  <div className="discount-applied">
+                    <span>Code {discountCode} applied — {DISCOUNT.percent}% off</span>
+                    <button className="discount-remove" onClick={removeDiscountCode}>Remove</button>
+                  </div>
+                ) : (
+                  <div className="discount-input-row">
+                    <input
+                      type="text"
+                      value={codeInput}
+                      onChange={(e) => setCodeInput(e.target.value)}
+                      placeholder={`Discount code (${DISCOUNT.code})`}
+                      aria-label="Discount code"
+                    />
+                    <button className="btn btn-outline btn-sm" onClick={() => applyDiscountCode(codeInput)}>Apply</button>
+                  </div>
+                )}
+              </div>
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>Rs. {total.toLocaleString()}</span>
+                <span>Rs. {subtotal.toLocaleString()}</span>
               </div>
+              {discountApplied && (
+                <div className="summary-row discount">
+                  <span>Discount ({discountCode})</span>
+                  <span>−Rs. {discount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="summary-row delivery">
                 <span>Delivery</span>
                 <span>To be confirmed</span>

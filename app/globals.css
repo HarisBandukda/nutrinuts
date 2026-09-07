@@ -12,6 +12,7 @@
   --color-success: #408743;
   --color-error: #C62828;
   --color-warning: #F5C584;
+  --color-star: #E9A23B;
   --font-primary: 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-heading: 'Georgia', 'Times New Roman', serif;
   --shadow-sm: 0 1px 3px rgba(59, 16, 7, 0.08);
@@ -466,7 +467,7 @@ input, textarea, select {
 }
 
 .review-stars {
-  color: var(--color-secondary);
+  color: var(--color-star);
   font-size: 1.1rem;
   margin-bottom: 12px;
 }
@@ -481,6 +482,164 @@ input, textarea, select {
 .review-author {
   font-weight: 600;
   color: var(--color-primary);
+}
+
+.review-author-date {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-top: 2px;
+}
+
+/* Product Reviews (Happilo-style) */
+.product-reviews {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid var(--color-border);
+}
+
+.product-reviews-title {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.rating-summary {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.rating-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.rating-average {
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.stars {
+  color: var(--color-star);
+  font-size: 1.15rem;
+  letter-spacing: 2px;
+}
+
+.rating-count {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+}
+
+.rating-bars {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rating-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.rating-bar-label {
+  width: 34px;
+  color: var(--color-text-light);
+  text-align: right;
+}
+
+.rating-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rating-bar-fill {
+  height: 100%;
+  background: var(--color-star);
+  border-radius: 4px;
+}
+
+.rating-bar-count {
+  width: 20px;
+  color: var(--color-text-light);
+}
+
+.product-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.product-review-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.product-review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.product-review-date {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+}
+
+.product-review-text {
+  color: var(--color-text);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.product-review-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  flex-wrap: wrap;
+}
+
+.product-review-name {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(64, 135, 67, 0.1);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-left: auto;
 }
 
 /* CTA */
@@ -718,10 +877,10 @@ input, textarea, select {
   margin-bottom: 1rem;
 }
 
-.product-detail-pack {
+.product-detail-per {
   font-size: 1rem;
+  font-weight: 400;
   color: var(--color-text-light);
-  margin-bottom: 1.5rem;
 }
 
 .product-detail-desc {
@@ -1058,6 +1217,92 @@ input, textarea, select {
   color: var(--color-text-light);
   font-style: italic;
   font-size: 0.85rem;
+}
+
+.summary-row.discount {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Sale pricing & discount code (Tier 2 #15) */
+.price-original {
+  text-decoration: line-through;
+  color: var(--color-text-light);
+  font-size: 0.8em;
+  font-weight: 400;
+  margin-right: 8px;
+}
+
+.sale-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.discount-badge {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.discount-code {
+  margin-bottom: 16px;
+}
+
+.discount-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.discount-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  outline: none;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.discount-input-row input:focus {
+  border-color: var(--color-primary);
+}
+
+.discount-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.discount-remove {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .cart-summary .btn {

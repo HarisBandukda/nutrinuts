@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import type { ReactNode } from 'react';
 import { getProductById } from './products';
 import type { Product } from './products';
+import { DISCOUNT } from './config';
 
 export interface CartItem {
   productId: number;
@@ -18,11 +19,17 @@ interface CartContextValue {
   items: CartItem[];
   detailedItems: DetailedCartItem[];
   count: number;
+  subtotal: number;
+  discount: number;
   total: number;
+  discountCode: string;
+  discountApplied: boolean;
   addToCart: (productId: number, quantity?: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
+  applyDiscountCode: (code: string) => boolean;
+  removeDiscountCode: () => void;
   notify: (message: string, isError?: boolean) => void;
 }
 
@@ -43,6 +50,8 @@ function readStoredCart(): CartItem[] {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(readStoredCart);
   const [toast, setToast] = useState<{ message: string; isError: boolean } | null>(null);
+  const [discountCode, setDiscountCode] = useState('');
+  const [discountApplied, setDiscountApplied] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -88,13 +97,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => setItems([]), []);
 
+  const applyDiscountCode = useCallback(
+    (code: string) => {
+      const normalized = code.trim().toUpperCase();
+      if (normalized === DISCOUNT.code) {
+        setDiscountCode(DISCOUNT.code);
+        setDiscountApplied(true);
+        notify(`Code ${DISCOUNT.code} applied — ${DISCOUNT.percent}% off!`);
+        return true;
+      }
+      setDiscountCode('');
+      setDiscountApplied(false);
+      notify('Invalid discount code', true);
+      return false;
+    },
+    [notify],
+  );
+
+  const removeDiscountCode = useCallback(() => {
+    setDiscountCode('');
+    setDiscountApplied(false);
+  }, []);
+
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
 
   const detailedItems: DetailedCartItem[] = items
     .map((i) => ({ ...i, product: getProductById(i.productId) }))
     .filter((i): i is DetailedCartItem => Boolean(i.product));
 
-  const total = detailedItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const subtotal = detailedItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const total = discountApplied ? Math.round((subtotal * (100 - DISCOUNT.percent)) / 100) : subtotal;
+  const discount = subtotal - total;
 
   return (
     <CartContext.Provider
@@ -102,11 +135,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items,
         detailedItems,
         count,
+        subtotal,
+        discount,
         total,
+        discountCode,
+        discountApplied,
         addToCart,
         removeFromCart,
         updateQuantity,
         clearCart,
+        applyDiscountCode,
+        removeDiscountCode,
         notify,
       }}
     >
