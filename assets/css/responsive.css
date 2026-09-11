@@ -5,11 +5,19 @@
   }
 
   .hero {
-    min-height: 450px;
+    min-height: 70vh;
   }
 
-  .hero-content h1 {
-    font-size: 2.5rem;
+  .hero-container {
+    padding: 50px 32px;
+  }
+
+  .hero-text {
+    max-width: 380px;
+  }
+
+  .hero-heading {
+    font-size: 2.6rem;
   }
 
   .footer-grid {
@@ -95,12 +103,55 @@
   }
 
   .hero {
-    min-height: auto;
-    padding: 60px 0;
+    min-height: 75vh;
+    padding: 0;
+    background-position: center center;
+    display: flex;
+    align-items: flex-end;
   }
 
-  .hero-content h1 {
+  /* Refined gradient: stronger warm tint at the bottom where text sits,
+     fading up naturally to reveal the banner */
+  .hero::before {
+    width: 100%;
+    background: linear-gradient(
+      to top,
+      rgba(255, 251, 245, 0.92) 0%,
+      rgba(255, 251, 245, 0.55) 35%,
+      rgba(255, 251, 245, 0.12) 70%,
+      transparent 100%
+    );
+  }
+
+  .hero-container {
+    padding: 0 24px 40px;
+    align-items: flex-end;
+  }
+
+  /* Clean text — no blur box, just natural readability from the gradient */
+  .hero-text {
+    max-width: 100%;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0 0 8px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .hero-heading {
     font-size: 2rem;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(255, 251, 245, 0.3);
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .hero-subheading {
+    font-size: 1rem;
   }
 
 
@@ -205,12 +256,41 @@
     font-size: 3rem;
   }
 
-  .hero-content h1 {
-    font-size: 1.6rem;
+  .hero {
+    min-height: 70vh;
+    background-position: center center;
   }
 
-  .hero-content p {
-    font-size: 1rem;
+  .hero-container {
+    padding: 0 16px 32px;
+  }
+
+  .hero-text {
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0 0 4px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .hero-heading {
+    font-size: 1.7rem;
+    line-height: 1.2;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .hero-subheading {
+    font-size: 0.9rem;
+  }
+
+  .hero-cta {
+    padding: 13px 30px;
+    font-size: 0.9rem;
   }
 
   .btn {
@@ -229,5 +309,81 @@
   .cart-summary,
   .checkout-summary {
     padding: 20px;
+  }
+
+  .wa-float {
+    width: 52px;
+    height: 52px;
+    bottom: 16px;
+    right: 16px;
+    font-size: 1.5rem;
+  }
+
+  .back-to-top {
+    bottom: 80px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .usp-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .usp-item p {
+    max-width: 100%;
+  }
+
+  .progress-steps {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .step-line {
+    width: 30px;
+    margin: 0 6px 22px;
+  }
+}
+
+/* ── UX Enhancements Tablet ── */
+@media (max-width: 1024px) {
+  .usp-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .usp-item h4 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .usp-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .step-line {
+    width: 30px;
+    margin: 0 4px 22px;
+  }
+
+  .quick-view-content {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-view-image {
+    min-height: 250px;
+  }
+
+  .quick-view-details {
+    padding: 20px;
+  }
+
+  .related-products {
+    margin-top: 40px;
+    padding-top: 30px;
   }
 }
