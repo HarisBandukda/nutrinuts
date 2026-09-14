@@ -13,6 +13,10 @@
  *   - Registers/unregisters admin devices for push notifications
  *   - Auto-cleans invalid/expired FCM tokens
  *   - Logs every notification attempt in "NotificationLogs" sheet
+ *   - Order tracking (Tier 2 #19): customer lookup + admin order manager
+ *       • GET ?action=track&orderId=..&phone=..   → order status (customer)
+ *       • GET ?action=list-orders&key=..          → recent orders (admin)
+ *       • GET ?action=update-status&key=..&orderId=..&status=.. → set status (admin)
  *
  * DEPLOYMENT SAFETY GUARANTEES:
  *   1. Order recording in Google Sheets ALWAYS succeeds regardless of
@@ -54,6 +58,11 @@
  *
  *    ⚠️  SECURITY: Never store the Service Account JSON in source code or GitHub.
  *        Script Properties is the ONLY place this credential should exist.
+ *
+ *    Add property: ADMIN_KEY
+ *    Value: A secret passphrase of your choice (used by the admin Order Manager
+ *           page and the list-orders / update-status endpoints). If it is not
+ *           set, those admin endpoints deny all requests (fail closed).
  *
  * 5. Click Deploy > Manage Deployments > (select existing) > Update.
  *    Or create a New Deployment if this is the first time.
@@ -120,10 +129,23 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  var action = (e && e.parameter && e.parameter.action) ? String(e.parameter.action) : '';
+
+  // ── Order tracking (Tier 2 #19) ──
+  if (action === 'track') {
+    return handleTrackOrder(e);
+  }
+  if (action === 'list-orders') {
+    return handleListOrders(e);
+  }
+  if (action === 'update-status') {
+    return handleUpdateStatus(e);
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({
       status: 'NutriNuts API is running',
-      version: '2.1.0-fcm-health-monitor',
+      version: '2.2.0-order-tracking',
     }))
     .setMimeType(ContentService.MimeType.JSON);
 }
@@ -1151,7 +1173,7 @@ function cleanupInvalidTokens(sheet) {
 function handleSystemHealth() {
   var result = {
     googleSheets: { status: 'error', detail: '' },
-    appsScript: { status: 'ok', detail: 'GAS endpoint responding', version: '2.1.0-fcm-health-monitor' },
+    appsScript: { status: 'ok', detail: 'GAS endpoint responding', version: '2.2.0-order-tracking' },
     firebase: { status: 'error', detail: '' },
     email: { status: 'error', detail: '', dailyQuota: 0 },
     whatsapp: { status: 'ok', detail: 'Client-side only — WhatsApp Business number configured' },
@@ -1476,6 +1498,218 @@ function handleTestEmail() {
       results: results,
     }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ================================================================== */
+/*                     ORDER TRACKING (Tier 2 #19)                     */
+/* ================================================================== */
+
+/**
+ * Canonical delivery-status values. The first five form the customer-facing
+ * forward stepper; "Cancelled" is an admin-only terminal state.
+ * NOTE: Must match ORDER_STEPS in lib/config.ts (plus "Cancelled").
+ */
+function getAllowedStatuses() {
+  return ['Pending', 'Confirmed', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
+}
+
+/**
+ * Respond with a CORS-enabled JSON body so the browser (track page / admin
+ * page) can read it via plain fetch. New endpoints route through this helper.
+ */
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader('Access-Control-Allow-Origin', '*');
+}
+
+/**
+ * Authorise admin-only endpoints against the ADMIN_KEY Script Property.
+ * If ADMIN_KEY is not set, every request is denied (fail closed).
+ */
+function isAdminAuthorized(e) {
+  var key = (e && e.parameter && e.parameter.key) ? String(e.parameter.key) : '';
+  var adminKey = PropertiesService.getScriptProperties().getProperty('ADMIN_KEY');
+  if (!adminKey) return false;
+  return key === adminKey;
+}
+
+/**
+ * Normalise an order ID for lookups: trim + uppercase.
+ */
+function normalizeOrderId(v) {
+  return String(v || '').trim().toUpperCase();
+}
+
+/**
+ * Normalise a Pakistani phone number to its last 10 digits so that
+ * "0309-6887474", "03096887474", and "+92 309 6887474" all compare equal.
+ */
+function normalizePhone(v) {
+  var digits = String(v || '').replace(/\D/g, '');
+  if (digits.length > 10) {
+    if (digits.indexOf('92') === 0) {
+      digits = digits.slice(2);
+    } else if (digits.charAt(0) === '0') {
+      digits = digits.slice(1);
+    }
+  }
+  if (digits.length > 10) digits = digits.slice(-10);
+  return digits;
+}
+
+/**
+ * Customer-facing lookup: ?action=track&orderId=NN-...&phone=03...
+ * Verifies the phone against the customer/receiver phone, then returns the
+ * order's delivery status and items. Read-only.
+ */
+function handleTrackOrder(e) {
+  var orderId = normalizeOrderId((e.parameter && e.parameter.orderId) || '');
+  var phone = normalizePhone((e.parameter && e.parameter.phone) || '');
+
+  if (!orderId || !phone) {
+    return jsonResponse({ success: false, error: 'missing-params' });
+  }
+
+  var rows = getOrderRows(orderId);
+
+  if (rows.length === 0) {
+    return jsonResponse({ success: false, error: 'not-found' });
+  }
+
+  var first = rows[0];
+  var customerPhone = normalizePhone(first[3]);
+  var receiverPhone = normalizePhone(first[5]);
+
+  if (phone !== customerPhone && phone !== receiverPhone) {
+    return jsonResponse({ success: false, error: 'invalid-phone' });
+  }
+
+  var items = rows.map(function(r) {
+    return {
+      name: String(r[8] || ''),
+      quantity: Number(r[9]) || 0,
+      lineTotal: Number(r[11]) || 0,
+    };
+  });
+
+  return jsonResponse({
+    success: true,
+    order: {
+      orderId: orderId,
+      dateTime: String(first[1] || ''),
+      customerName: String(first[2] || ''),
+      paymentMethod: String(first[14] || ''),
+      paymentStatus: String(first[15] || ''),
+      deliveryStatus: String(first[16] || 'Pending'),
+      grandTotal: Number(first[13]) || 0,
+      items: items,
+    },
+  });
+}
+
+/**
+ * Return all Orders-sheet rows (full row arrays) for a given order ID.
+ */
+function getOrderRows(orderId) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Orders');
+  if (!sheet) return [];
+  var data = sheet.getDataRange().getValues();
+  var result = [];
+  for (var i = 1; i < data.length; i++) {
+    if (normalizeOrderId(String(data[i][0])) === orderId) {
+      result.push(data[i]);
+    }
+  }
+  return result;
+}
+
+/**
+ * Admin endpoint: ?action=list-orders&key=ADMIN_KEY[&limit=100]
+ * Returns recent orders (newest first), aggregated across item rows.
+ */
+function handleListOrders(e) {
+  if (!isAdminAuthorized(e)) {
+    return jsonResponse({ success: false, error: 'unauthorized' });
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Orders');
+  if (!sheet) {
+    return jsonResponse({ success: true, count: 0, orders: [] });
+  }
+
+  var data = sheet.getDataRange().getValues();
+  var ordersMap = {};
+  var orderIds = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var orderId = normalizeOrderId(String(row[0] || ''));
+    if (!orderId) continue;
+
+    if (!ordersMap[orderId]) {
+      ordersMap[orderId] = {
+        orderId: orderId,
+        dateTime: String(row[1] || ''),
+        customerName: String(row[2] || ''),
+        customerPhone: String(row[3] || ''),
+        paymentMethod: String(row[14] || ''),
+        deliveryStatus: String(row[16] || 'Pending'),
+        grandTotal: Number(row[13]) || 0,
+        itemCount: 0,
+        items: [],
+      };
+      orderIds.push(orderId);
+    }
+
+    var qty = Number(row[9]) || 0;
+    ordersMap[orderId].itemCount += qty;
+    ordersMap[orderId].items.push({ name: String(row[8] || ''), quantity: qty });
+  }
+
+  var orders = orderIds.map(function(id) { return ordersMap[id]; });
+  orders.reverse(); // newest first
+
+  var limit = parseInt(String((e.parameter && e.parameter.limit) || '100'), 10) || 100;
+  if (orders.length > limit) orders = orders.slice(0, limit);
+
+  return jsonResponse({ success: true, count: orders.length, orders: orders });
+}
+
+/**
+ * Admin endpoint: ?action=update-status&key=ADMIN_KEY&orderId=...&status=...
+ * Sets the "Delivery Status" column for every row of the order.
+ */
+function handleUpdateStatus(e) {
+  if (!isAdminAuthorized(e)) {
+    return jsonResponse({ success: false, error: 'unauthorized' });
+  }
+
+  var orderId = normalizeOrderId((e.parameter && e.parameter.orderId) || '');
+  var status = String((e.parameter && e.parameter.status) || '');
+
+  if (!orderId || getAllowedStatuses().indexOf(status) === -1) {
+    return jsonResponse({ success: false, error: 'invalid-params' });
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Orders');
+  if (!sheet) return jsonResponse({ success: false, error: 'not-found' });
+
+  var data = sheet.getDataRange().getValues();
+  var updated = 0;
+
+  // Column index 16 (0-based) = Delivery Status → sheet column 17 ("Q").
+  for (var i = 1; i < data.length; i++) {
+    if (normalizeOrderId(String(data[i][0])) === orderId) {
+      sheet.getRange(i + 1, 17).setValue(status);
+      updated++;
+    }
+  }
+
+  if (updated === 0) return jsonResponse({ success: false, error: 'not-found' });
+
+  return jsonResponse({ success: true, orderId: orderId, status: status, rowsUpdated: updated });
 }
 
 /* ================================================================== */

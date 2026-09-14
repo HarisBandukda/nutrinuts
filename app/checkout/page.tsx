@@ -3,10 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart';
-import { CONFIG } from '@/lib/config';
-
-const GOOGLE_SHEETS_URL =
-  'https://script.google.com/macros/s/AKfycbzajJGRq456pL82TGsRATSjH8-exOeuBWdqxH7HQeMC6F1zOV_5HuLZiFUSaXHIbotbzA/exec';
+import { CONFIG, GAS_URL } from '@/lib/config';
 
 const PAYMENT_METHODS = [
   { id: 'Cash on Delivery', icon: '💵' },
@@ -15,15 +12,17 @@ const PAYMENT_METHODS = [
 ];
 
 function generateOrderId() {
-  const raw = typeof window !== 'undefined' ? window.localStorage.getItem('nutrinuts_last_order_id') : null;
-  const lastId = parseInt(raw || '0', 10) || 0;
-  const newId = lastId + 1;
-  if (typeof window !== 'undefined') window.localStorage.setItem('nutrinuts_last_order_id', String(newId));
-  return `NN-${String(newId).padStart(6, '0')}`;
+  // Unique per order and collision-resistant across devices: date + random
+  // suffix, e.g. "NN-240914-7F3K". (The old localStorage counter restarted at
+  // 1 in every browser, so two customers could get the same ID.)
+  const d = new Date();
+  const ymd = `${String(d.getFullYear()).slice(-2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `NN-${ymd}-${rand}`;
 }
 
 async function saveToGoogleSheets(data: unknown) {
-  return fetch(GOOGLE_SHEETS_URL, {
+  return fetch(GAS_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
@@ -64,6 +63,7 @@ export default function CheckoutPage() {
   const [payment, setPayment] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [waUrl, setWaUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [locationStatus, setLocationStatus] = useState('');
   const mapsInputRef = useRef<HTMLInputElement>(null);
@@ -141,7 +141,14 @@ export default function CheckoutPage() {
 
     setSubmitting(false);
     setOrderId(orderData.orderId);
-    window.location.href = `https://wa.me/${CONFIG.whatsapp}?text=${buildWhatsAppMessage(orderData)}`;
+    setWaUrl(`https://wa.me/${CONFIG.whatsapp}?text=${buildWhatsAppMessage(orderData)}`);
+    // Remember the order locally so the Track Order page can prefill it.
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(
+        'nutrinuts_last_order',
+        JSON.stringify({ orderId: orderData.orderId, phone: get('customer-phone') }),
+      );
+    }
     clearCart();
     form.reset();
     setPayment('');
@@ -302,10 +309,20 @@ export default function CheckoutPage() {
           <div className="modal">
             <div className="modal-icon">✅</div>
             <h2>Order Placed!</h2>
-            <p>Your order has been recorded.</p>
+            <p>Save your Order ID to track your delivery.</p>
             <div className="order-id">{orderId}</div>
-            <p style={{ fontSize: '0.9rem' }}>Please send the WhatsApp message to confirm your order. We will contact you shortly to confirm delivery charges.</p>
-            <Link href="/shop" className="btn btn-secondary" onClick={() => setOrderId(null)}>Continue Shopping</Link>
+            <p style={{ fontSize: '0.9rem' }}>
+              We&apos;ll contact you shortly to confirm delivery charges. Track your order anytime from the Track Order page.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+              {waUrl && (
+                <a className="btn btn-secondary" href={waUrl} target="_blank" rel="noopener noreferrer">
+                  Confirm on WhatsApp
+                </a>
+              )}
+              <Link href="/track" className="btn btn-outline">Track Order</Link>
+              <Link href="/shop" className="btn btn-primary" onClick={() => { setOrderId(null); setWaUrl(''); }}>Continue Shopping</Link>
+            </div>
           </div>
         </div>
       )}

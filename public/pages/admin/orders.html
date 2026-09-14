@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Manager — NutriNuts Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <style>
+    :root {
+      --nn-brown: #3B1007;
+      --nn-cream: #F5C584;
+      --nn-green: #408743;
+      --nn-bg: #FFFBF5;
+      --nn-text: #2C2C2C;
+      --nn-border: #e0d5c5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--nn-bg);
+      color: var(--nn-text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .admin-page {
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .admin-container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .admin-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .admin-header .logo-icon { font-size: 42px; }
+
+    .admin-header h1 {
+      font-family: Georgia, serif;
+      font-size: 26px;
+      color: var(--nn-brown);
+      margin: 8px 0 4px;
+    }
+
+    .admin-header p {
+      font-size: 14px;
+      color: #6b5e53;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(59, 16, 7, 0.06);
+    }
+
+    .card + .card { margin-top: 20px; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .toolbar input[type="password"],
+    .toolbar input[type="text"] {
+      padding: 11px 14px;
+      border: 1px solid var(--nn-border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .toolbar input:focus { border-color: var(--nn-brown); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary { background: var(--nn-brown); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #4d1a0d; }
+    .btn-secondary { background: #fff; color: var(--nn-brown); border: 1.5px solid var(--nn-brown); }
+
+    .order-card {
+      background: #fff;
+      border: 1px solid var(--nn-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-top: 14px;
+      box-shadow: 0 1px 6px rgba(59, 16, 7, 0.05);
+    }
+
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .order-id {
+      font-family: Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--nn-brown);
+    }
+
+    .order-meta {
+      font-size: 13px;
+      color: #6b5e53;
+      margin-top: 2px;
+    }
+
+    .order-items {
+      font-size: 13px;
+      color: #6b5e53;
+      margin-top: 6px;
+    }
+
+    .order-total {
+      font-weight: 700;
+      color: var(--nn-brown);
+      white-space: nowrap;
+    }
+
+    .order-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--nn-border);
+      flex-wrap: wrap;
+    }
+
+    .order-bottom label {
+      font-size: 13px;
+      color: #6b5e53;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-select {
+      padding: 8px 12px;
+      border: 1px solid var(--nn-border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--nn-brown);
+      background: #fff;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .status-select:focus { border-color: var(--nn-green); }
+
+    .payment { font-size: 13px; color: #8a7d6e; }
+
+    .empty {
+      text-align: center;
+      color: #8a7d6e;
+      padding: 32px 0;
+      font-size: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--nn-brown);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 9999;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: #408743; }
+    .toast.error { background: #c0392b; }
+
+    .hint {
+      font-size: 12px;
+      color: #8a7d6e;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-page">
+    <div class="admin-container">
+
+      <div class="admin-header">
+        <div class="logo-icon">📦</div>
+        <h1>Order Manager</h1>
+        <p>View recent orders and update their delivery status.</p>
+      </div>
+
+      <!-- Key + controls -->
+      <div class="card">
+        <div class="toolbar">
+          <input type="password" id="key-input" placeholder="Admin key" autocomplete="off">
+          <button class="btn btn-primary" id="btn-load" onclick="loadOrders()">Load Orders</button>
+        </div>
+        <div class="hint">
+          The admin key is the <strong>ADMIN_KEY</strong> you set in the Apps Script Project Settings → Script Properties.
+          It is saved in this browser so you only enter it once.
+        </div>
+      </div>
+
+      <!-- Search + refresh -->
+      <div class="card" id="controls-card" style="display:none;">
+        <div class="toolbar">
+          <input type="text" id="search-input" placeholder="Search order ID, name or phone…" oninput="renderOrders()">
+          <button class="btn btn-secondary" onclick="loadOrders()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Orders list -->
+      <div id="orders-section" style="display:none;">
+        <div id="orders-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbzajJGRq456pL82TGsRATSjH8-exOeuBWdqxH7HQeMC6F1zOV_5HuLZiFUSaXHIbotbzA/exec';
+    var STATUSES = ['Pending', 'Confirmed', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
+    var orders = [];
+
+    function getKey() {
+      return (document.getElementById('key-input').value || '').trim();
+    }
+
+    function showToast(message, type) {
+      var toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + (type || '') + ' show';
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(function () { toast.classList.remove('show'); }, 3500);
+    }
+
+    async function loadOrders() {
+      var key = getKey();
+      if (!key) { showToast('Enter your admin key first.', 'error'); return; }
+
+      var btn = document.getElementById('btn-load');
+      btn.disabled = true;
+      btn.textContent = 'Loading…';
+
+      try {
+        var res = await fetch(GAS_URL + '?action=list-orders&key=' + encodeURIComponent(key));
+        var data = await res.json();
+        if (!data.success) {
+          showToast(data.error === 'unauthorized' ? 'Invalid admin key.' : (data.error || 'Failed to load orders.'), 'error');
+          return;
+        }
+        orders = data.orders || [];
+        localStorage.setItem('nutrinuts_admin_key', key);
+        document.getElementById('controls-card').style.display = 'block';
+        document.getElementById('orders-section').style.display = 'block';
+        renderOrders();
+        showToast('Loaded ' + orders.length + ' orders.', 'success');
+      } catch (e) {
+        showToast('Network error: ' + e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Load Orders';
+      }
+    }
+
+    function renderOrders() {
+      var q = (document.getElementById('search-input').value || '').trim().toLowerCase();
+      var list = document.getElementById('orders-list');
+
+      var filtered = orders.filter(function (o) {
+        return !q ||
+          (o.orderId || '').toLowerCase().indexOf(q) !== -1 ||
+          (o.customerName || '').toLowerCase().indexOf(q) !== -1 ||
+          (o.customerPhone || '').toLowerCase().indexOf(q) !== -1;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty">No orders found.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(function (o) {
+        var options = STATUSES.map(function (s) {
+          return '<option value="' + s + '"' + (s === o.deliveryStatus ? ' selected' : '') + '>' + s + '</option>';
+        }).join('');
+        var items = (o.items || []).map(function (it) { return it.name + ' × ' + it.quantity; }).join(', ');
+        return (
+          '<div class="order-card">' +
+            '<div class="order-top">' +
+              '<div>' +
+                '<div class="order-id">' + o.orderId + '</div>' +
+                '<div class="order-meta">' + o.dateTime + ' · ' + o.customerName + ' · ' + o.customerPhone + '</div>' +
+                '<div class="order-items">' + items + '</div>' +
+              '</div>' +
+              '<div class="order-total">Rs. ' + Number(o.grandTotal || 0).toLocaleString() + '</div>' +
+            '</div>' +
+            '<div class="order-bottom">' +
+              '<label>Status: <select class="status-select" data-id="' + o.orderId + '" onchange="updateStatus(this)">' + options + '</select></label>' +
+              '<span class="payment">' + (o.paymentMethod || '—') + '</span>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    async function updateStatus(sel) {
+      var key = getKey();
+      if (!key) { showToast('Enter your admin key first.', 'error'); return; }
+
+      var orderId = sel.getAttribute('data-id');
+      var status = sel.value;
+      var prevStatus = (orders.find(function (x) { return x.orderId === orderId; }) || {}).deliveryStatus || 'Pending';
+
+      sel.disabled = true;
+      try {
+        var url = GAS_URL + '?action=update-status&key=' + encodeURIComponent(key) +
+          '&orderId=' + encodeURIComponent(orderId) + '&status=' + encodeURIComponent(status);
+        var res = await fetch(url);
+        var data = await res.json();
+
+        if (data.success) {
+          var o = orders.find(function (x) { return x.orderId === orderId; });
+          if (o) o.deliveryStatus = status;
+          showToast(orderId + ' → ' + status, 'success');
+        } else {
+          sel.value = prevStatus;
+          showToast(data.error === 'unauthorized' ? 'Invalid admin key.' : (data.error || 'Update failed.'), 'error');
+        }
+      } catch (e) {
+        sel.value = prevStatus;
+        showToast('Network error: ' + e.message, 'error');
+      } finally {
+        sel.disabled = false;
+      }
+    }
+
+    // Auto-load if the key was saved previously.
+    (function init() {
+      var saved = localStorage.getItem('nutrinuts_admin_key');
+      if (saved) {
+        document.getElementById('key-input').value = saved;
+        loadOrders();
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,3 +1,17 @@
+// Google Apps Script web-app endpoint (order recording + tracking).
+export const GAS_URL =
+  'https://script.google.com/macros/s/AKfycbzajJGRq456pL82TGsRATSjH8-exOeuBWdqxH7HQeMC6F1zOV_5HuLZiFUSaXHIbotbzA/exec';
+
+// Canonical delivery-status lifecycle (Tier 2 #19 — order tracking).
+// "Cancelled" is handled separately (it is not part of the forward stepper).
+export const ORDER_STEPS: string[] = [
+  'Pending',
+  'Confirmed',
+  'Preparing',
+  'Out for Delivery',
+  'Delivered',
+];
+
 // Business configuration — single source of truth for contact details.
 // `email` is the public address (info@nutrinuts.pk), forwarded to the
 // Gmail in `notificationEmail` via ImprovMX.

@@ -32,9 +32,12 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <Link href="/cart" className="cart-btn" id="header-cart">
-          🛒<span className="cart-count" style={{ display: count > 0 ? 'flex' : 'none' }}>{count}</span>
-        </Link>
+        <div className="header-right">
+          <Link href="/track" className="track-link">Track Order</Link>
+          <Link href="/cart" className="cart-btn" id="header-cart">
+            🛒<span className="cart-count" style={{ display: count > 0 ? 'flex' : 'none' }}>{count}</span>
+          </Link>
+        </div>
       </div>
     </header>
   );
