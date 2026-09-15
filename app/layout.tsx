@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 const GA_ID = 'G-1S38N4ZB85';
 const CLARITY_ID = 'xt22s019rm';
-const META_PIXEL_ID = ''; // Paste the Meta Pixel ID here (e.g. '1234567890123456')
+const META_PIXEL_ID = '1743657156847309';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
