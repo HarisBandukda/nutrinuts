@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import ProductImage from '@/components/ProductImage';
 import AddToCart from '@/components/AddToCart';
 import ProductReviews from '@/components/ProductReviews';
+import MetaViewContent from '@/components/MetaViewContent';
 import { getProductById, products, formatPackSize, discountPercent, badgeLabel } from '@/lib/products';
 
 export function generateStaticParams() {
@@ -49,6 +50,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
             <p className="product-detail-desc">{product.description}</p>
             <AddToCart productId={product.id} />
+            <MetaViewContent product={product} />
           </div>
         </div>
         <ProductReviews productName={product.name} />

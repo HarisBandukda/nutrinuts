@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { getProductById } from './products';
 import type { Product } from './products';
 import { DISCOUNT } from './config';
+import { trackMetaEvent } from './meta-pixel';
 
 export interface CartItem {
   productId: number;
@@ -80,6 +81,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return [...prev, { productId, quantity }];
       });
       notify('Item added to cart!');
+
+      // Meta Pixel — fire after the item has been successfully added to the cart.
+      const product = getProductById(productId);
+      if (product) {
+        trackMetaEvent('AddToCart', {
+          content_ids: [String(productId)],
+          content_name: product.name,
+          content_type: 'product',
+          contents: [{ id: String(productId), quantity, item_price: product.price }],
+          value: product.price * quantity,
+          currency: 'PKR',
+        });
+      }
     },
     [notify],
   );

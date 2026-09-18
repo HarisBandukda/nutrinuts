@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart';
 import { CONFIG, GAS_URL } from '@/lib/config';
+import { trackMetaEvent } from '@/lib/meta-pixel';
 
 const PAYMENT_METHODS = [
   { id: 'Cash on Delivery', icon: '💵' },
@@ -67,6 +68,25 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [locationStatus, setLocationStatus] = useState('');
   const mapsInputRef = useRef<HTMLInputElement>(null);
+
+  // Meta Pixel — fire InitiateCheckout once when the customer begins checkout
+  // with a non-empty cart, using the current cart contents and total.
+  useEffect(() => {
+    if (detailedItems.length === 0) return;
+    trackMetaEvent('InitiateCheckout', {
+      content_ids: detailedItems.map((i) => String(i.productId)),
+      content_type: 'product',
+      contents: detailedItems.map((i) => ({
+        id: String(i.productId),
+        quantity: i.quantity,
+        item_price: i.product.price,
+      })),
+      num_items: detailedItems.reduce((sum, i) => sum + i.quantity, 0),
+      value: total,
+      currency: 'PKR',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -142,6 +162,19 @@ export default function CheckoutPage() {
     setSubmitting(false);
     setOrderId(orderData.orderId);
     setWaUrl(`https://wa.me/${CONFIG.whatsapp}?text=${buildWhatsAppMessage(orderData)}`);
+    // Meta Pixel — fire Purchase once the order is placed (the conversion event).
+    trackMetaEvent('Purchase', {
+      content_ids: detailedItems.map((i) => String(i.productId)),
+      content_type: 'product',
+      contents: detailedItems.map((i) => ({
+        id: String(i.productId),
+        quantity: i.quantity,
+        item_price: i.product.price,
+      })),
+      num_items: detailedItems.reduce((sum, i) => sum + i.quantity, 0),
+      value: total,
+      currency: 'PKR',
+    });
     // Remember the order locally so the Track Order page can prefill it.
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(
