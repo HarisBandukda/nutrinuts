@@ -7,12 +7,37 @@ import Footer from '@/components/Footer';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://nutrinuts.pk'),
   title: {
     default: 'NutriNuts – Pure. Fresh. Premium.',
     template: '%s – NutriNuts',
   },
   description:
     'NutriNuts - Pure. Fresh. Premium. Premium quality nuts, dry fruits, and healthy products in Pakistan.',
+  openGraph: {
+    title: 'NutriNuts – Pure. Fresh. Premium.',
+    description:
+      'Premium quality nuts, dry fruits, and healthy products in Pakistan. Pure. Fresh. Premium.',
+    url: 'https://nutrinuts.pk',
+    siteName: 'NutriNuts',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NutriNuts – Pure. Fresh. Premium Nuts & Dry Fruits',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'NutriNuts – Pure. Fresh. Premium.',
+    description:
+      'Premium quality nuts, dry fruits, and healthy products in Pakistan. Pure. Fresh. Premium.',
+    images: ['/images/og-image.jpg'],
+  },
 };
 
 const GA_ID = 'G-1S38N4ZB85';
